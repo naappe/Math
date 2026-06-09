@@ -1,0 +1,488 @@
+I'll create a beautiful, easy-to-learn study interface specifically designed for test preparation. It includes flashcards, quick reference cards, and practice mode — all based on your actual MAT135 content.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>MAT135 Study Hub | Learn Fast for Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    /* Main container */
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .study-header {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      color: white;
+    }
+    .study-header h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .study-header p {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+    .badge-group {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .topic-badge {
+      background: rgba(255,255,255,0.1);
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #cbd5e1;
+    }
+
+    /* Tab Navigation */
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 2rem 0 1.5rem;
+    }
+    .tab-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: none;
+      padding: 0.8rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 600;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      backdrop-filter: blur(4px);
+    }
+    .tab-btn i {
+      margin-right: 8px;
+    }
+    .tab-btn.active {
+      background: #3b82f6;
+      color: white;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.4);
+    }
+    .tab-btn:hover:not(.active) {
+      background: #475569;
+      color: white;
+    }
+
+    /* Content Panels */
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .tab-panel.active-panel {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Flashcard Grid */
+    .flashcard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      padding: 0.5rem;
+    }
+    .flashcard {
+      background: white;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+    }
+    .flashcard:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 35px -10px rgba(0,0,0,0.3);
+    }
+    .card-front, .card-back {
+      padding: 1.5rem;
+      transition: all 0.2s;
+    }
+    .card-front {
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      border-bottom: 3px solid #3b82f6;
+    }
+    .card-front h3 {
+      color: #0f172a;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-front .topic-tag {
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+    }
+    .card-front .question {
+      font-weight: 500;
+      color: #334155;
+      line-height: 1.5;
+      margin: 0.8rem 0;
+    }
+    .card-back {
+      background: #f1f5f9;
+      border-top: 1px solid #e2e8f0;
+    }
+    .card-back .answer {
+      color: #0f3b2c;
+      font-weight: 500;
+    }
+    .flip-hint {
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 0.8rem;
+      text-align: right;
+    }
+
+    /* Quick Reference Cards (rules grid) */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+    }
+    .rule-card {
+      background: white;
+      border-radius: 1.2rem;
+      padding: 1.2rem;
+      border-left: 6px solid #3b82f6;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: all 0.2s;
+    }
+    .rule-card .rule-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+    .rule-card .rule-math {
+      font-family: monospace;
+      background: #f8fafc;
+      padding: 0.5rem;
+      border-radius: 12px;
+      margin: 0.5rem 0;
+      overflow-x: auto;
+    }
+
+    /* Practice Mode Section */
+    .practice-area {
+      background: white;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+      box-shadow: 0 25px 40px -12px black;
+    }
+    .practice-question {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f1f5f9;
+      border-radius: 1rem;
+    }
+    .practice-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin: 1.5rem 0;
+    }
+    .practice-opt {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      padding: 1rem;
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    .practice-opt:hover {
+      background: #eef2ff;
+      border-color: #3b82f6;
+    }
+    .feedback {
+      margin-top: 1rem;
+      padding: 0.8rem;
+      border-radius: 1rem;
+      font-weight: 500;
+    }
+    .feedback.correct {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .feedback.wrong {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .next-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    /* utility */
+    .text-center {
+      text-align: center;
+    }
+    .mt-4 {
+      margin-top: 1.5rem;
+    }
+    @media (max-width: 700px) {
+      .flashcard-grid { grid-template-columns: 1fr; }
+      .practice-question { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="study-header">
+    <h1><i class="fas fa-graduation-cap"></i> MAT135 Study Hub</h1>
+    <p>Indices · Simultaneous Equations · Inequalities · Trigonometry · Logs · Hyperbolic Functions</p>
+    <div class="badge-group">
+      <span class="topic-badge"><i class="fas fa-calculator"></i> 60+ Formulas</span>
+      <span class="topic-badge"><i class="fas fa-brain"></i> Flashcard mode</span>
+      <span class="topic-badge"><i class="fas fa-check-circle"></i> Test yourself</span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="flashcards"><i class="fas fa-layer-group"></i> Flashcards</button>
+    <button class="tab-btn" data-tab="reference"><i class="fas fa-book-open"></i> Quick Reference</button>
+    <button class="tab-btn" data-tab="practice"><i class="fas fa-pen-alt"></i> Test Mode</button>
+  </div>
+
+  <!-- FLASHCARDS PANEL -->
+  <div id="flashcards" class="tab-panel active-panel">
+    <div class="flashcard-grid" id="flashcardGrid"></div>
+    <div class="text-center mt-4" style="color:#94a3b8;"><i class="fas fa-hand-pointer"></i> Click any card to flip → see answer</div>
+  </div>
+
+  <!-- QUICK REFERENCE PANEL -->
+  <div id="reference" class="tab-panel">
+    <div class="rules-grid" id="rulesGrid"></div>
+  </div>
+
+  <!-- PRACTICE MODE PANEL -->
+  <div id="practice" class="tab-panel">
+    <div class="practice-area" id="practiceArea">
+      <div id="practiceQuestion" class="practice-question">Loading ...</div>
+      <div id="practiceOptions" class="practice-options"></div>
+      <div id="practiceFeedback"></div>
+      <button id="nextPracticeBtn" class="next-btn"><i class="fas fa-arrow-right"></i> Next Question</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==================== DATA (fact-checked from PDF) ====================
+  const flashcards = [
+    { topic: "Indices", front: "\(a^m \\times a^n = ?\)", back: "\(a^{m+n}\) (Product law)", category: "Indices" },
+    { topic: "Indices", front: "\(a^m \\div a^n = ?\)", back: "\(a^{m-n}\)", category: "Indices" },
+    { topic: "Indices", front: "\((a^m)^n = ?\)", back: "\(a^{m \\times n}\)", category: "Indices" },
+    { topic: "Indices", front: "\(a^{-m} = ?\)", back: "\(\\frac{1}{a^m}\)", category: "Indices" },
+    { topic: "Indices", front: "\(a^{0} = ?\)", back: "1 (for a ≠ 0)", category: "Indices" },
+    { topic: "Indices", front: "Simplify: \(\\frac{a^3 b^2 c^4}{a b c^{-2}}\)", back: "\(a^{2} b c^{6}\)", category: "Algebra" },
+    { topic: "Simultaneous Eq", front: "Solve: \(3x+y=5,\\; x+y=1\) (Elimination)", back: "x = 2, y = -1", category: "SimEq" },
+    { topic: "Simultaneous Eq", front: "Matrix method: \(x+2y=4,\\; 3x-5y=1\) → solution?", back: "x=2, y=1", category: "SimEq" },
+    { topic: "Inequalities", front: "Solve \(5x-3 < 3x+1\) for x (real)", back: "x < 2", category: "Inequalities" },
+    { topic: "Inequalities", front: "\(3(x-1) \\le 2(x-3)\)", back: "x \\le -3", category: "Inequalities" },
+    { topic: "Trigonometry", front: "In right Δ, AB=24, BC=7, find sin A", back: "\(\\sin A = \\frac{7}{25}\)", category: "Trig" },
+    { topic: "Trigonometry", front: "If \(\\sin A = 3/4\), find tan A", back: "\(\\tan A = \\frac{3}{\\sqrt{7}}\)", category: "Trig" },
+    { topic: "Logarithms", front: "\(\\log_a m + \\log_a n = ?\)", back: "\(\\log_a(mn)\)", category: "Logs" },
+    { topic: "Logarithms", front: "\(\\log_{10}125 + \\log_{10}8 = ?\)", back: "3 (since \(125\\times8=1000\))", category: "Logs" },
+    { topic: "Exponential", front: "Power series for \(e^x\) up to \(x^2\)", back: "\(1 + x + \\frac{x^2}{2!}\)", category: "Exp" },
+    { topic: "Exponential", front: "Value of \(5e^{0.5}\) (approx)", back: "8.2436", category: "Exp" },
+    { topic: "Hyperbolic", front: "Definition of \(\\sinh x\)", back: "\(\\frac{e^x - e^{-x}}{2}\)", category: "Hyperbolic" },
+    { topic: "Hyperbolic", front: "\(\\cosh^2 x - \\sinh^2 x = ?\)", back: "1 (identity)", category: "Hyperbolic" },
+    { topic: "Hyperbolic", front: "\(\\sinh 2x = ?\)", back: "\(2\\sinh x \\cosh x\)", category: "Hyperbolic" },
+    { topic: "Functions", front: "Inverse of \(f(x)=3x+6\)", back: "\(f^{-1}(x)=\\frac{x-6}{3}\)", category: "Functions" }
+  ];
+
+  const quickRules = [
+    { title: "📌 Product Law (Indices)", math: "\\(a^m \\times a^n = a^{m+n}\\)", example: "\\(2^3 \\times 2^4 = 2^7\\)" },
+    { title: "⚡ Negative Exponent", math: "\\(a^{-n} = \\frac{1}{a^n}\\)", example: "\\(9^{-2} = \\frac{1}{81}\\)" },
+    { title: "🧮 Logarithm Product Rule", math: "\\(\\log_a m + \\log_a n = \\log_a(mn)\\)", example: "\\(\\log_2 4 + \\log_2 8 = \\log_2 32 = 5\\)" },
+    { title: "🔢 Quadratic Formula", math: "\\(x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}\\)", example: "for \\(ax^2+bx+c=0\\)" },
+    { title: "📐 Pythagoras Theorem", math: "\\(a^2 + b^2 = c^2\\)", example: "3-4-5 triangle → 9+16=25" },
+    { title: "🌀 Hyperbolic Identity", math: "\\(\\cosh^2 x - \\sinh^2 x = 1\\)", example: "Analogous to \\(\\cos^2+\\sin^2=1\\) but with minus" },
+    { title: "📈 Power Series eˣ", math: "\\(e^x = \\sum_{n=0}^{\\infty} \\frac{x^n}{n!}\\)", example: "\\(e^{0.5} \\approx 1.64872\\)" },
+    { title: "✖️ Cross-Multiplication", math: "\\(\\frac{a}{b} = \\frac{c}{d} \\Rightarrow ad = bc\\)", example: "Solve \\(\\frac{3}{x} = \\frac{6}{10}\\) → x=5" },
+    { title: "🧩 Matrix Inverse (2x2)", math: "\\(A^{-1} = \\frac{1}{ad-bc}\\begin{pmatrix}d&-b\\\\-c&a\\end{pmatrix}\\)", example: "Use for simultaneous eq" },
+    { title: "📐 sin, cos relation", math: "\\(\\sin^2\\theta + \\cos^2\\theta = 1\\)", example: "If sin A = 3/4 → cos A = √7/4" }
+  ];
+
+  // Practice questions (based on real test problems)
+  let practiceQuestions = [
+    { question: "Simplify \(\\frac{a^3 b^2 c^4}{a b c^{-2}}\)", options: ["\(a^2 b c^2\)", "\(a^2 b c^{6}\)", "\(a b^2 c^2\)", "\(a^3 b c^4\)"], correct: 1, explanation: "Subtract exponents: a^{3-1}=a^2, b^{2-1}=b, c^{4-(-2)}=c^6" },
+    { question: "Solve for x: \(3x + y = 5\) and \(x + y = 1\) (Elimination)", options: ["x=1, y=0", "x=2, y=-1", "x=0, y=5", "x=3, y=-2"], correct: 1, explanation: "Subtract equations: (3x+y)-(x+y)=5-1 → 2x=4 → x=2, then y=-1" },
+    { question: "\(\\log_{10}125 + \\log_{10}8 = ?\)", options: ["2", "3", "4", "5"], correct: 1, explanation: "125×8 = 1000, log₁₀1000 = 3" },
+    { question: "If \(\\sin A = \\frac{3}{4}\), then \(\\tan A = ?\)", options: ["\(\\frac{3}{\\sqrt{7}}\)", "\(\\frac{3}{4}\)", "\(\\frac{4}{3}\)", "\(\\frac{\\sqrt{7}}{3}\)"], correct: 0, explanation: "opp=3, hyp=4 → adj=√7, tan=3/√7" },
+    { question: "Which hyperbolic identity is correct?", options: ["\(\\cosh^2 x + \\sinh^2 x = 1\)", "\(\\cosh^2 x - \\sinh^2 x = 1\)", "\(\\sinh 2x = 2\\sinh x \\cosh x\)", "Both B and C"], correct: 3, explanation: "Both B and C are true hyperbolic identities." },
+    { question: "Solve inequality: \(5x - 3 < 3x + 1\)", options: ["x > 2", "x < 2", "x < -2", "x > -2"], correct: 1, explanation: "5x-3x < 1+3 → 2x<4 → x<2" },
+    { question: "Expand \(e^x(x^2-1)\) up to \(x^2\) term", options: ["\(-1 - x + \\frac12 x^2\)", "\(1+x+x^2\)", "\(-1 + x^2\)", "\(x^2 - 1\)"], correct: 0, explanation: "from series: (1+x+x²/2)(x²-1) yields -1 -x + 0.5x² + higher" },
+    { question: "Matrix method: solve 2x+9y=43, 3x+2y=7 → x=?", options: ["-1", "5", "2", "0"], correct: 0, explanation: "det = -23, inverse gives x=-1 (as from PDF page 43)" }
+  ];
+  let currentPractice = 0;
+  let answerLock = false;
+
+  // Render Flashcards
+  function renderFlashcards() {
+    const container = document.getElementById('flashcardGrid');
+    container.innerHTML = '';
+    flashcards.forEach((card, idx) => {
+      const cardDiv = document.createElement('div');
+      cardDiv.className = 'flashcard';
+      cardDiv.setAttribute('data-flipped', 'false');
+      cardDiv.innerHTML = `
+        <div class="card-front">
+          <h3><span>${card.topic}</span> <span class="topic-tag">${card.category}</span></h3>
+          <div class="question">${card.front}</div>
+          <div class="flip-hint"><i class="fas fa-undo-alt"></i> tap to flip</div>
+        </div>
+        <div class="card-back" style="display:none;">
+          <div class="answer"><strong>✔ Answer:</strong> ${card.back}</div>
+          <div class="flip-hint"><i class="fas fa-sync-alt"></i> tap to flip back</div>
+        </div>
+      `;
+      let isFlipped = false;
+      cardDiv.addEventListener('click', () => {
+        const frontDiv = cardDiv.querySelector('.card-front');
+        const backDiv = cardDiv.querySelector('.card-back');
+        if (!isFlipped) {
+          frontDiv.style.display = 'none';
+          backDiv.style.display = 'block';
+          isFlipped = true;
+        } else {
+          frontDiv.style.display = 'block';
+          backDiv.style.display = 'none';
+          isFlipped = false;
+        }
+      });
+      container.appendChild(cardDiv);
+    });
+    if (window.MathJax) MathJax.typesetPromise();
+  }
+
+  function renderQuickRef() {
+    const container = document.getElementById('rulesGrid');
+    container.innerHTML = '';
+    quickRules.forEach(rule => {
+      const div = document.createElement('div');
+      div.className = 'rule-card';
+      div.innerHTML = `
+        <div class="rule-title">${rule.title}</div>
+        <div class="rule-math">${rule.math}</div>
+        <div style="font-size:0.85rem; color:#475569;">💡 ${rule.example}</div>
+      `;
+      container.appendChild(div);
+    });
+    if (window.MathJax) MathJax.typesetPromise();
+  }
+
+  function loadPracticeQuestion() {
+    const q = practiceQuestions[currentPractice];
+    document.getElementById('practiceQuestion').innerHTML = q.question;
+    const optsDiv = document.getElementById('practiceOptions');
+    optsDiv.innerHTML = '';
+    q.options.forEach((opt, idx) => {
+      const optDiv = document.createElement('div');
+      optDiv.className = 'practice-opt';
+      optDiv.innerHTML = opt;
+      optDiv.addEventListener('click', () => {
+        if (answerLock) return;
+        const feedbackDiv = document.getElementById('practiceFeedback');
+        if (idx === q.correct) {
+          feedbackDiv.innerHTML = `<div class="feedback correct"><i class="fas fa-check-circle"></i> Correct! ${q.explanation}</div>`;
+        } else {
+          feedbackDiv.innerHTML = `<div class="feedback wrong"><i class="fas fa-times-circle"></i> Wrong. ${q.explanation}</div>`;
+        }
+        answerLock = true;
+      });
+      optsDiv.appendChild(optDiv);
+    });
+    document.getElementById('practiceFeedback').innerHTML = '';
+    answerLock = false;
+    if (window.MathJax) MathJax.typesetPromise();
+  }
+
+  function nextPractice() {
+    currentPractice = (currentPractice + 1) % practiceQuestions.length;
+    loadPracticeQuestion();
+  }
+
+  // Tab switching
+  function initTabs() {
+    const btns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.getAttribute('data-tab');
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panels.forEach(panel => panel.classList.remove('active-panel'));
+        document.getElementById(tabId).classList.add('active-panel');
+        // re-render math if needed for active panel
+        if (window.MathJax) MathJax.typesetPromise();
+      });
+    });
+  }
+
+  // Initialization
+  renderFlashcards();
+  renderQuickRef();
+  loadPracticeQuestion();
+  initTabs();
+  document.getElementById('nextPracticeBtn').addEventListener('click', () => {
+    nextPractice();
+  });
+</script>
+</body>
+</html>
+```

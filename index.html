@@ -3,1375 +3,815 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Campaign CRM · Full System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <title>Voter Management System</title>
+    
+    <!-- Load Config -->
+    <script src="config.js"></script>
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
-        body { background: #f0f4f9; min-height: 100vh; padding: 1rem; }
-        .app { max-width: 1400px; margin: 0 auto; }
+        /* ===== RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        .header {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
             background: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 16px;
-            margin-bottom: 1.2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* ===== HEADER ===== */
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 0.8rem;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
         }
-        .header h1 { font-size: 1.2rem; color: #0b2b4a; display: flex; align-items: center; gap: 0.5rem; }
-        .header h1 i { color: #2a7de1; }
-        .header-actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
         
-        .btn { padding: 0.3rem 1rem; border-radius: 30px; border: none; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; }
-        .btn-primary { background: #0b2b4a; color: white; }
-        .btn-primary:hover { background: #1a3f62; }
-        .btn-success { background: #4caf50; color: white; }
-        .btn-success:hover { background: #388e3c; }
-        .btn-danger { background: transparent; border: 1px solid #f44336; color: #f44336; }
-        .btn-danger:hover { background: #ffebee; }
-        .btn-warning { background: #ff9800; color: white; }
-        .btn-warning:hover { background: #e68900; }
-        .btn-outline { background: transparent; border: 1px solid #dce2ec; color: #6f7f96; }
-        .btn-outline:hover { background: #f4f7fc; }
-        .btn-purple { background: #9c27b0; color: white; }
-        .btn-purple:hover { background: #7b1fa2; }
-        .btn-teal { background: #009688; color: white; }
-        .btn-teal:hover { background: #00796b; }
+        .header h1 {
+            color: #1a1a2e;
+            font-size: 26px;
+        }
         
-        .file-status { font-size: 0.7rem; color: #4e6b8a; }
-        .file-status .count { color: #0b2b4a; font-weight: 600; }
-        .badge-auto { background: #e8f5e9; color: #2e7d32; padding: 0.15rem 0.6rem; border-radius: 20px; font-size: 0.55rem; font-weight: 600; }
+        .header .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
         
-        .tabs {
+        .header-actions {
             display: flex;
-            gap: 0.3rem;
-            margin-bottom: 1.2rem;
+            gap: 10px;
             flex-wrap: wrap;
-            background: white;
-            padding: 0.3rem;
-            border-radius: 12px;
-            border: 1px solid #eef2f6;
         }
-        .tab {
-            padding: 0.4rem 1rem;
-            border-radius: 10px;
+        
+        .header-actions button {
+            padding: 8px 16px;
             border: none;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 500;
-            background: transparent;
-            color: #6b7a8f;
-            transition: 0.15s;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
+            font-weight: 600;
+            font-size: 13px;
         }
-        .tab:hover { background: #f0f4f9; color: #0b2b4a; }
-        .tab.active { background: #0b2b4a; color: white; }
-        .tab .badge-tab { background: rgba(255,255,255,0.2); padding: 0.05rem 0.4rem; border-radius: 20px; font-size: 0.5rem; }
-        .tab.active .badge-tab { background: rgba(255,255,255,0.2); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
         
-        .stats-grid {
+        /* ===== STATS ===== */
+        .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 0.7rem;
-            margin-bottom: 1.2rem;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
         }
+        
         .stat-card {
-            background: white;
-            padding: 0.5rem 0.8rem;
-            border-radius: 12px;
-            border: 1px solid #eef2f6;
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
             text-align: center;
+            border-left: 4px solid #4361ee;
         }
-        .stat-card .label { font-size: 0.5rem; text-transform: uppercase; color: #6b7a8f; letter-spacing: 0.04em; }
-        .stat-card .value { font-size: 1.4rem; font-weight: 700; color: #0a1e33; line-height: 1.2; }
-        .stat-card .sub { font-size: 0.5rem; color: #3d5a78; }
-        .stat-card.highlight { background: #0b2b4a; border-color: #0b2b4a; }
-        .stat-card.highlight .value, .stat-card.highlight .label, .stat-card.highlight .sub { color: white; }
-        .stat-card.success { background: #e8f5e9; border-color: #4caf50; }
-        .stat-card.success .value { color: #2e7d32; }
-        .stat-card.warning { background: #fff3e0; border-color: #ff9800; }
-        .stat-card.warning .value { color: #e65100; }
-        .stat-card.info { background: #e3f2fd; border-color: #2196f3; }
-        .stat-card.info .value { color: #0d47a1; }
-        .stat-card.purple { background: #f3e5f5; border-color: #9c27b0; }
-        .stat-card.purple .value { color: #6a1b9a; }
         
-        .two-col { display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 1.2rem; }
-        @media (max-width: 820px) { .two-col { grid-template-columns: 1fr; } }
+        .stat-card .number {
+            font-size: 26px;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
         
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 1rem 1.2rem;
-            border: 1px solid #eef2f6;
+        .stat-card .label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .card h3 { font-size: 0.85rem; font-weight: 600; color: #1c3b5e; margin-bottom: 0.7rem; display: flex; align-items: center; gap: 0.5rem; }
-        .card h3 i { color: #2a7de1; }
-        .card h3 .badge-count { background: #eef4ff; color: #1a4f8e; font-size: 0.55rem; padding: 0.05rem 0.5rem; border-radius: 20px; margin-left: auto; }
         
-        .form-group { margin-bottom: 0.5rem; }
-        .form-group label { font-size: 0.6rem; font-weight: 500; color: #3a5575; display: block; margin-bottom: 0.1rem; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 0.35rem 0.7rem;
-            border: 1px solid #dce2ec;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            background: #fafcff;
+        .stat-card.mdp {
+            border-left-color: #dc3545;
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: #2a7de1;
-            outline: none;
+        .stat-card.pnc {
+            border-left-color: #28a745;
         }
-        .form-group textarea { resize: vertical; min-height: 36px; font-size: 0.7rem; }
-        .row-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-        .row-trio { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
+        .stat-card.jp {
+            border-left-color: #ffc107;
+        }
+        .stat-card.total {
+            border-left-color: #4361ee;
+        }
+        .stat-card.male {
+            border-left-color: #17a2b8;
+        }
+        .stat-card.female {
+            border-left-color: #e83e8c;
+        }
         
-        .voter-sidebar {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 0.4rem;
-            border: 1px solid #eef2f6;
-            border-radius: 10px;
-            padding: 0.2rem 0;
-        }
-        .voter-sidebar::-webkit-scrollbar { width: 3px; }
-        .voter-sidebar::-webkit-scrollbar-thumb { background: #dce2ec; border-radius: 4px; }
-        .voter-item {
+        /* ===== FILTERS ===== */
+        .filter-section {
             display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
             align-items: center;
-            padding: 0.2rem 0.6rem;
-            cursor: pointer;
-            font-size: 0.65rem;
-            gap: 0.4rem;
-            transition: 0.1s;
-            border-left: 3px solid transparent;
         }
-        .voter-item:hover { background: #f0f4f9; }
-        .voter-item.active { background: #eef4ff; border-left-color: #2a7de1; }
-        .voter-item .num { color: #8a9bb0; font-size: 0.5rem; width: 22px; flex-shrink: 0; }
-        .voter-item .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .voter-item .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-        .dot-not_contacted { background: #bdbdbd; }
-        .dot-visited { background: #2196f3; }
-        .dot-not_home { background: #ff9800; }
-        .dot-refused { background: #f44336; }
-        .dot-supporter { background: #4caf50; }
-        .dot-opposition { background: #9c27b0; }
-        .dot-undecided { background: #ffc107; }
         
-        .table-wrap { max-height: 260px; overflow-y: auto; border-radius: 10px; }
-        .table-wrap::-webkit-scrollbar { width: 4px; }
-        .table-wrap::-webkit-scrollbar-thumb { background: #dce2ec; border-radius: 4px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
-        th { text-align: left; padding: 0.25rem 0.3rem; color: #4e6b8a; font-weight: 500; border-bottom: 1px solid #e9eef5; position: sticky; top: 0; background: white; z-index: 2; }
-        td { padding: 0.25rem 0.3rem; border-bottom: 1px solid #f0f4fa; color: #1a2c44; }
-        .status-badge {
+        .filter-section input,
+        .filter-section select {
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .filter-section input:focus,
+        .filter-section select:focus {
+            outline: none;
+            border-color: #4361ee;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        
+        .filter-section input {
+            flex: 1;
+            min-width: 180px;
+        }
+        
+        .filter-section select {
+            min-width: 120px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .filter-section .filter-label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #555;
+        }
+        
+        /* ===== TABLE ===== */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 900px;
+        }
+        
+        th {
+            background: #1a1a2e;
+            color: white;
+            padding: 10px 8px;
+            text-align: left;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 8px 8px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .party-badge {
             display: inline-block;
-            padding: 0.05rem 0.4rem;
-            border-radius: 20px;
-            font-size: 0.55rem;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 600;
         }
-        .status-supporter { background: #daf1e4; color: #0c5e3a; }
-        .status-not_home { background: #fff1d6; color: #a85d1a; }
-        .status-refused { background: #ffe8e8; color: #b13e3e; }
-        .status-visited { background: #e3f2fd; color: #0d47a1; }
-        .status-undecided { background: #fff8e1; color: #e65100; }
-        .status-opposition { background: #f3e5f5; color: #6a1b9a; }
         
-        .next-move {
-            background: #f0f7ff;
-            border-radius: 12px;
-            padding: 0.4rem 1rem;
-            margin-top: 0.5rem;
+        .party-badge.mdp {
+            background: #dc3545;
+            color: white;
+        }
+        .party-badge.pnc {
+            background: #28a745;
+            color: white;
+        }
+        .party-badge.jp {
+            background: #ffc107;
+            color: #333;
+        }
+        .party-badge.other {
+            background: #6c757d;
+            color: white;
+        }
+        
+        /* ===== PAGINATION ===== */
+        .pagination {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.6rem;
             flex-wrap: wrap;
-            border-left: 4px solid #2a7de1;
-            font-size: 0.75rem;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
         }
-        .next-move i { color: #2a7de1; }
-        .next-move strong { color: #0b2b4a; }
         
-        .rules-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.4rem;
-            margin-top: 0.5rem;
+        .pagination .info {
+            font-size: 13px;
+            color: #666;
         }
-        @media (max-width: 500px) { .rules-section { grid-template-columns: 1fr; } }
-        .rule-card {
-            background: #f8fafd;
-            border-radius: 8px;
-            padding: 0.4rem 0.6rem;
-            border-left: 3px solid #ffc857;
-        }
-        .rule-card .rule-title { font-size: 0.55rem; font-weight: 600; color: #0b2b4a; }
-        .rule-card .rule-desc { font-size: 0.5rem; color: #4e6b8a; }
         
+        .pagination .pages {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .pagination .pages button {
+            padding: 6px 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .pagination .pages button.active {
+            background: #4361ee;
+            color: white;
+            border-color: #4361ee;
+        }
+        
+        .pagination .pages button:hover:not(.active) {
+            background: #e9ecef;
+        }
+        
+        /* ===== BUTTONS ===== */
+        .btn-primary {
+            background: #4361ee;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3651d4;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #4361ee;
+            border: 1px solid #4361ee;
+        }
+        .btn-outline:hover {
+            background: #4361ee;
+            color: white;
+        }
+        
+        /* ===== LOADING ===== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #0b2b4a;
+            padding: 14px 24px;
+            border-radius: 8px;
             color: white;
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 999;
-        }
-        .toast.show { opacity: 1; }
-        
-        .debug-box {
-            background: #fef9e7;
-            border: 1px solid #f1c40f;
-            border-radius: 10px;
-            padding: 0.4rem 0.7rem;
-            margin-top: 0.5rem;
-            font-size: 0.6rem;
-            display: none;
-        }
-        .debug-box.show { display: block; }
-        .debug-box pre {
-            white-space: pre-wrap;
-            word-break: break-all;
-            margin: 0;
-            font-size: 0.55rem;
-            max-height: 120px;
-            overflow-y: auto;
-        }
-        
-        .party-filter { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; margin-top: 0.4rem; }
-        .party-filter select { padding: 0.15rem 0.5rem; border-radius: 20px; border: 1px solid #dce2ec; font-size: 0.65rem; background: white; }
-        .action-bar { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.4rem; }
-        .phase-indicator {
-            display: flex;
-            gap: 0.4rem;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .phase-step {
-            font-size: 0.5rem;
-            padding: 0.1rem 0.5rem;
-            border-radius: 20px;
-            background: #eef2f6;
-            color: #6b7a8f;
-        }
-        .phase-step.active { background: #0b2b4a; color: white; }
-        .phase-step.done { background: #4caf50; color: white; }
-        .touch-count { font-size: 0.55rem; color: #6b7a8f; }
-        .touch-count .num { font-weight: 700; color: #0b2b4a; font-size: 0.7rem; }
-        
-        .digital-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 0.8rem;
-        }
-        .digital-card {
-            background: #f8fafd;
-            border-radius: 12px;
-            padding: 0.8rem;
-            text-align: center;
-            border: 1px solid #eef2f6;
-            transition: 0.15s;
-        }
-        .digital-card:hover { border-color: #2a7de1; background: #f0f7ff; }
-        .digital-card i { font-size: 1.5rem; color: #2a7de1; }
-        .digital-card h4 { font-size: 0.7rem; color: #0b2b4a; margin-top: 0.3rem; }
-        .digital-card p { font-size: 0.55rem; color: #6b7a8f; }
-        
-        .social-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 0.4rem;
-        }
-        .social-item {
-            background: #f8fafd;
-            border-radius: 8px;
-            padding: 0.4rem;
-            text-align: center;
-        }
-        .social-item .platform { font-size: 0.55rem; color: #6b7a8f; }
-        .social-item .count { font-size: 0.9rem; font-weight: 700; color: #0b2b4a; }
-        .social-item .change { font-size: 0.45rem; color: #4caf50; }
-        
-        .post-item {
-            background: #f8fafd;
-            border-radius: 10px;
-            padding: 0.6rem;
-            margin-bottom: 0.5rem;
-            border-left: 3px solid #2a7de1;
-        }
-        .post-item .post-title { font-size: 0.7rem; font-weight: 600; color: #0b2b4a; }
-        .post-item .post-meta { font-size: 0.5rem; color: #6b7a8f; display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .post-status-published { background: #e8f5e9; color: #2e7d32; padding: 0.05rem 0.4rem; border-radius: 20px; font-size: 0.5rem; }
-        .post-status-scheduled { background: #fff3e0; color: #e65100; padding: 0.05rem 0.4rem; border-radius: 20px; font-size: 0.5rem; }
-        .post-status-draft { background: #eef2f6; color: #6b7a8f; padding: 0.05rem 0.4rem; border-radius: 20px; font-size: 0.5rem; }
-        
-        .footer { margin-top: 1.2rem; text-align: center; font-size: 0.6rem; color: #7a8da3; }
-        
-        .metrics-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 0.4rem;
-            margin-top: 0.6rem;
-            padding-top: 0.6rem;
-            border-top: 1px solid #eef2f6;
-        }
-        @media (max-width: 500px) { .metrics-row { grid-template-columns: 1fr 1fr; } }
-        .metric-item { text-align: center; }
-        .metric-item .label { font-size: 0.5rem; color: #6b7a8f; }
-        .metric-item .value { font-size: 0.9rem; font-weight: 700; color: #0b2b4a; }
-        
-        .goal-bar { width: 100%; height: 4px; background: #eef2f6; border-radius: 4px; margin-top: 0.2rem; }
-        .goal-bar .fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-        
-        .priority-badge {
-            display: inline-block;
-            padding: 0.05rem 0.4rem;
-            border-radius: 20px;
-            font-size: 0.5rem;
             font-weight: 600;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            font-size: 14px;
         }
-        .priority-high { background: #f44336; color: white; }
-        .priority-medium { background: #ff9800; color: white; }
-        .priority-low { background: #4caf50; color: white; }
         
-        .visit-log-item {
-            background: #f8fafd;
-            border-radius: 8px;
-            padding: 0.4rem 0.6rem;
-            margin-bottom: 0.3rem;
-            font-size: 0.6rem;
-            border-left: 3px solid #2a7de1;
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
-        .visit-log-item .log-meta { font-size: 0.5rem; color: #6b7a8f; }
+        .toast.success {
+            background: #28a745;
+        }
+        .toast.error {
+            background: #dc3545;
+        }
+        .toast.info {
+            background: #4361ee;
+        }
+        
+        /* ===== ROW COUNT SELECTOR ===== */
+        .row-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .row-selector select {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .stat-card .number {
+                font-size: 20px;
+            }
+            .filter-section input {
+                min-width: 120px;
+            }
+            .pagination {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+            }
+            .header-actions button {
+                flex: 1;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="app">
-    <div class="header">
-        <h1><i class="fas fa-flag-checkered"></i> Campaign CRM</h1>
-        <div class="header-actions">
-            <a href="data.html" class="btn btn-primary"><i class="fas fa-database"></i> Data</a>
-            <span class="file-status">
-                <span class="count" id="voterCount">0</span> voters
-                <span id="autoLoadStatus"></span>
-            </span>
-            <button class="btn btn-success" id="backupBtn"><i class="fas fa-download"></i> Backup</button>
-            <button class="btn btn-danger" id="clearDataBtn"><i class="fas fa-trash"></i></button>
-        </div>
-    </div>
 
-    <!-- TABS -->
-    <div class="tabs">
-        <button class="tab active" data-tab="canvass"><i class="fas fa-door-open"></i> Canvass <span class="badge-tab" id="canvassBadge">0</span></button>
-        <button class="tab" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
-        <button class="tab" data-tab="visits"><i class="fas fa-history"></i> Visit Log</button>
-        <button class="tab" data-tab="priority"><i class="fas fa-bullseye"></i> Priority</button>
-        <button class="tab" data-tab="analytics"><i class="fas fa-chart-line"></i> Analytics</button>
-    </div>
-
-    <!-- STATS -->
-    <div class="stats-grid">
-        <div class="stat-card"><div class="label">Voters</div><div class="value" id="statTotal">0</div><div class="sub">loaded</div></div>
-        <div class="stat-card success"><div class="label">Supporters</div><div class="value" id="statSupporters">0</div><div class="sub">identified</div></div>
-        <div class="stat-card warning"><div class="label">Not Home</div><div class="value" id="statNotHome">0</div><div class="sub">revisit</div></div>
-        <div class="stat-card highlight"><div class="label">Knocked</div><div class="value" id="statKnocked">0</div><div class="sub">total doors</div></div>
-        <div class="stat-card info"><div class="label">Visited</div><div class="value" id="statVisited">0</div><div class="sub">contacts made</div></div>
-        <div class="stat-card purple"><div class="label">Priority</div><div class="value" id="statPriority">0</div><div class="sub">high priority</div></div>
-    </div>
-
-    <!-- TAB 1: CANVASS -->
-    <div class="tab-content active" id="tab-canvass">
-        <div class="two-col">
-            <div class="card">
-                <h3><i class="fas fa-door-open"></i> Door-to-Door Interface <span class="badge-count" id="phaseBadge">Ready</span></h3>
-                
-                <div style="margin-bottom:0.6rem;">
-                    <div style="font-size:0.6rem;color:#6b7a8f;display:flex;justify-content:space-between;">
-                        <span>👆 Click voter to auto-fill</span>
-                        <span id="voterCountDisplay" style="font-weight:600;color:#0b2b4a;">0</span>
-                    </div>
-                    <div class="voter-sidebar" id="voterSidebar">
-                        <div style="text-align:center;color:#8a9bb0;padding:0.5rem;font-size:0.65rem;">Load voters from Data page</div>
-                    </div>
-                </div>
-                
-                <form id="voterForm">
-                    <div class="form-group">
-                        <label><i class="far fa-address-book"></i> Voter Name</label>
-                        <input type="text" id="voterName" placeholder="e.g. Ahmed Waheed" required />
-                    </div>
-                    <div class="row-duo">
-                        <div class="form-group">
-                            <label><i class="fas fa-hashtag"></i> National ID</label>
-                            <input type="text" id="voterId" placeholder="A012123" />
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-map-pin"></i> House / Address</label>
-                            <input type="text" id="voterAddress" placeholder="No 1589" required />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-flag"></i> Party</label>
-                        <input type="text" id="voterParty" placeholder="MDP / PPM / etc." />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-phone"></i> Outcome at Door</label>
-                        <select id="voterStatus">
-                            <option value="supporter">👍 Supporter</option>
-                            <option value="not_home">🚪 Not Home</option>
-                            <option value="refused">❌ Refused</option>
-                            <option value="undecided">🤔 Undecided</option>
-                            <option value="opposition">👎 Opposition</option>
-                            <option value="visited">✅ Visited</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-comment"></i> Notes (issues, requests, concerns)</label>
-                        <textarea id="voterNotes" placeholder="e.g. Supports education reform, wants yard sign, asked about healthcare..." rows="2"></textarea>
-                    </div>
-                    <div class="row-trio">
-                        <div class="form-group">
-                            <label>Support Level (0-5)</label>
-                            <select id="supportLevel">
-                                <option value="0">0 - Opposed</option>
-                                <option value="1">1 - Lean Opposed</option>
-                                <option value="2">2 - Undecided</option>
-                                <option value="3" selected>3 - Leaning Support</option>
-                                <option value="4">4 - Strong Support</option>
-                                <option value="5">5 - Champion</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Revisit Priority</label>
-                            <select id="revisitPriority">
-                                <option value="0">0 - Low</option>
-                                <option value="1">1 - Low</option>
-                                <option value="2">2 - Medium</option>
-                                <option value="3">3 - Medium</option>
-                                <option value="4" selected>4 - High</option>
-                                <option value="5">5 - Urgent</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-user"></i> Assigned To</label>
-                            <input type="text" id="assignedTo" placeholder="Canvasser name" value="Me" />
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;"><i class="fas fa-save"></i> Log Door Knock</button>
-                </form>
-                
-                <div class="action-bar">
-                    <button class="btn btn-outline" id="suggestBtn"><i class="fas fa-compass"></i> Suggest Next</button>
-                    <button class="btn btn-outline" id="clearLogBtn"><i class="fas fa-undo"></i> Clear Log</button>
-                </div>
-                
-                <div class="party-filter">
-                    <label><i class="fas fa-flag"></i> Filter by Party:</label>
-                    <select id="partyFilter"><option value="all">All Parties</option></select>
-                    <span style="font-size:0.55rem;color:#6b7a8f;" id="filterCount"></span>
-                </div>
-                
-                <div class="rules-section">
-                    <div class="rule-card"><div class="rule-title"><i class="fas fa-clock"></i> 3-Minute Rule</div><div class="rule-desc">Keep each knock under 3 minutes</div></div>
-                    <div class="rule-card"><div class="rule-title"><i class="fas fa-handshake"></i> Ask for Support</div><div class="rule-desc">"Can I count on your support?"</div></div>
-                    <div class="rule-card"><div class="rule-title"><i class="fas fa-file-alt"></i> Leave Literature</div><div class="rule-desc">Always leave a brochure</div></div>
-                    <div class="rule-card"><div class="rule-title"><i class="fas fa-ban"></i> Don't Argue</div><div class="rule-desc">Acknowledge, move to common ground</div></div>
-                </div>
-                
-                <div class="debug-box" id="debugBox"><strong>🔍 Debug:</strong><pre id="debugContent">Ready</pre></div>
-            </div>
-
-            <div class="card">
-                <h3><i class="fas fa-list-ul"></i> Recent Activity <span class="badge-count" id="logCount">0</span></h3>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>Voter</th><th>Outcome</th><th>Support</th><th>Priority</th></tr></thead>
-                        <tbody id="logTable">
-                            <tr><td colspan="4" style="text-align:center;color:#8a9bb0;padding:0.8rem 0;">No activity yet</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="next-move">
-                    <i class="fas fa-location-arrow"></i>
-                    <span><strong>Where to next:</strong> <span id="nextSuggestion">Load voters from Data page</span></span>
-                    <span style="margin-left:auto;font-size:0.55rem;background:#dce8f8;padding:0.05rem 0.5rem;border-radius:20px;" id="nextBadge">0 pending</span>
-                </div>
-                
-                <div class="metrics-row">
-                    <div class="metric-item"><div class="label">Conversion</div><div class="value" id="conversionRate" style="color:#2e7d32;">0%</div></div>
-                    <div class="metric-item"><div class="label">Support Rate</div><div class="value" id="supportRate">0%</div></div>
-                    <div class="metric-item"><div class="label">Avg Support</div><div class="value" id="avgSupport">0</div></div>
-                    <div class="metric-item"><div class="label">High Priority</div><div class="value" id="highPriorityCount" style="color:#e65100;">0</div></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 2: DASHBOARD -->
-    <div class="tab-content" id="tab-dashboard">
-        <div class="two-col">
-            <div class="card">
-                <h3><i class="fas fa-chart-simple"></i> Live Dashboard</h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Total Voters</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#0b2b4a;" id="dashTotal">0</div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Doors Knocked</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#0b2b4a;" id="dashKnocked">0</div>
-                        <div style="font-size:0.5rem;color:#4caf50;">Today</div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Supporters Found</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#2e7d32;" id="dashSupporters">0</div>
-                        <div style="font-size:0.5rem;color:#4caf50;">+0 this week</div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Revisit Queue</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#e65100;" id="dashRevisit">0</div>
-                        <div style="font-size:0.5rem;color:#ff9800;">Not home + undecided</div>
-                    </div>
-                </div>
-                <div style="margin-top:0.8rem;background:#f8fafd;border-radius:10px;padding:0.6rem;">
-                    <h4 style="font-size:0.65rem;color:#0b2b4a;">🏁 Campaign Progress</h4>
-                    <div style="font-size:0.55rem;color:#4e6b8a;line-height:1.6;">
-                        <div>📊 Voters reached: <strong id="dashReached">0</strong> / <span id="dashTotalVoters">0</span></div>
-                        <div>🎯 Supporters identified: <strong id="dashSupportersCount">0</strong></div>
-                        <div>🔄 Revisit needed: <strong id="dashRevisitCount">0</strong></div>
-                        <div>📈 Conversion rate: <strong id="dashConvRate">0%</strong></div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-flag"></i> Party Breakdown</h3>
-                <div id="partyBreakdown" style="display:flex;flex-direction:column;gap:0.3rem;">
-                    <div style="text-align:center;color:#8a9bb0;padding:0.5rem;font-size:0.65rem;">Load data to see breakdown</div>
-                </div>
-                <div style="margin-top:0.8rem;background:#f8fafd;border-radius:10px;padding:0.6rem;">
-                    <h4 style="font-size:0.65rem;color:#0b2b4a;">🎯 Priority Scoring</h4>
-                    <div style="font-size:0.55rem;color:#4e6b8a;">
-                        <div>🔴 High Priority: <strong id="priorityHigh">0</strong> voters</div>
-                        <div>🟡 Medium Priority: <strong id="priorityMedium">0</strong> voters</div>
-                        <div>🟢 Low Priority: <strong id="priorityLow">0</strong> voters</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 3: VISIT LOG -->
-    <div class="tab-content" id="tab-visits">
-        <div class="card">
-            <h3><i class="fas fa-history"></i> Complete Visit History <span class="badge-count" id="visitLogCount">0</span></h3>
-            <div class="table-wrap" style="max-height:400px;">
-                <table>
-                    <thead><tr><th>Voter</th><th>Outcome</th><th>Support</th><th>Priority</th><th>Canvasser</th><th>Time</th></tr></thead>
-                    <tbody id="visitLogTable">
-                        <tr><td colspan="6" style="text-align:center;color:#8a9bb0;padding:0.8rem 0;">No visits logged yet</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 4: PRIORITY -->
-    <div class="tab-content" id="tab-priority">
-        <div class="two-col">
-            <div class="card">
-                <h3><i class="fas fa-bullseye"></i> Priority Scoring Engine</h3>
-                <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;margin-bottom:0.8rem;">
-                    <h4 style="font-size:0.65rem;color:#0b2b4a;">🧠 How Priority is Calculated</h4>
-                    <div style="font-size:0.55rem;color:#4e6b8a;line-height:1.8;">
-                        <div>✅ Party match: +2 if voter party matches yours</div>
-                        <div>✅ Support level: +1 to +5 based on engagement</div>
-                        <div>✅ Revisit priority: +1 to +5 from canvasser</div>
-                        <div>❌ Not home count: -1 per absence</div>
-                        <div>⚠️ Opposition: -3 penalty</div>
-                    </div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">High Priority (4-5)</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#f44336;" id="priorityCountHigh">0</div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Medium Priority (2-3)</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#ff9800;" id="priorityCountMedium">0</div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Low Priority (0-1)</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#4caf50;" id="priorityCountLow">0</div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Avg Priority Score</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#0b2b4a;" id="avgPriorityScore">0</div>
-                    </div>
-                </div>
-                <div style="margin-top:0.8rem;">
-                    <h4 style="font-size:0.65rem;color:#0b2b4a;">📋 Top Priority Voters</h4>
-                    <div id="topPriorityList" style="font-size:0.6rem;color:#4e6b8a;">
-                        <div style="text-align:center;padding:0.5rem;">No data yet</div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-route"></i> Walk List Generator</h3>
-                <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;">
-                    <h4 style="font-size:0.65rem;color:#0b2b4a;">📅 Today's Route</h4>
-                    <div id="walkList" style="font-size:0.55rem;color:#4e6b8a;max-height:300px;overflow-y:auto;">
-                        <div style="text-align:center;padding:0.5rem;">Generate walk list by loading data</div>
-                    </div>
-                </div>
-                <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;" id="generateWalkList"><i class="fas fa-sync-alt"></i> Generate Walk List</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 5: ANALYTICS -->
-    <div class="tab-content" id="tab-analytics">
-        <div class="two-col">
-            <div class="card">
-                <h3><i class="fas fa-chart-bar"></i> Campaign Analytics</h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Door-to-Door</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#0b2b4a;" id="analyticsDoors">0</div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Supporters</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#2e7d32;" id="analyticsSupporters">0</div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Conversion Rate</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#0b2b4a;" id="analyticsConversion">0%</div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;text-align:center;">
-                        <div style="font-size:0.5rem;color:#6b7a8f;">Not Home Rate</div>
-                        <div style="font-size:1.2rem;font-weight:700;color:#e65100;" id="analyticsNotHome">0%</div>
-                    </div>
-                </div>
-                <div style="margin-top:0.8rem;background:#f8fafd;border-radius:10px;padding:0.6rem;">
-                    <h4 style="font-size:0.65rem;color:#0b2b4a;">📈 Summary</h4>
-                    <div style="font-size:0.55rem;color:#4e6b8a;line-height:1.6;">
-                        <div>Total voters: <strong id="analyticsTotal">0</strong></div>
-                        <div>Visited: <strong id="analyticsVisited">0</strong> (<span id="analyticsVisitedPct">0%</span>)</div>
-                        <div>Supporters: <strong id="analyticsSupporterCount">0</strong></div>
-                        <div>Undecided: <strong id="analyticsUndecided">0</strong></div>
-                        <div>Not home: <strong id="analyticsNotHomeCount">0</strong></div>
-                        <div>Refused: <strong id="analyticsRefused">0</strong></div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-bullseye"></i> Campaign Goals</h3>
-                <div style="display:flex;flex-direction:column;gap:0.5rem;">
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-size:0.6rem;font-weight:600;color:#0b2b4a;">🎯 1,000 Doors Knocked</span>
-                            <span style="font-size:0.6rem;color:#0b2b4a;" id="goalDoors">0 / 1,000</span>
-                        </div>
-                        <div class="goal-bar"><div class="fill" id="goalDoorsBar" style="width:0%;background:#2a7de1;"></div></div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-size:0.6rem;font-weight:600;color:#0b2b4a;">🎯 500 Supporters</span>
-                            <span style="font-size:0.6rem;color:#0b2b4a;" id="goalSupporters">0 / 500</span>
-                        </div>
-                        <div class="goal-bar"><div class="fill" id="goalSupportersBar" style="width:0%;background:#4caf50;"></div></div>
-                    </div>
-                    <div style="background:#f8fafd;border-radius:10px;padding:0.6rem;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-size:0.6rem;font-weight:600;color:#0b2b4a;">🎯 80% Visit Rate</span>
-                            <span style="font-size:0.6rem;color:#0b2b4a;" id="goalVisitRate">0% / 80%</span>
-                        </div>
-                        <div class="goal-bar"><div class="fill" id="goalVisitBar" style="width:0%;background:#ff9800;"></div></div>
-                    </div>
-                </div>
-                <div style="margin-top:0.8rem;background:#e3f2fd;border-radius:10px;padding:0.5rem;text-align:center;">
-                    <div style="font-size:0.55rem;color:#0d47a1;">
-                        <i class="fas fa-info-circle"></i> Overall Progress: <strong id="overallProgress">0%</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="footer">
-        <i class="fas fa-flag-checkered"></i> Campaign CRM · VoterRecord + VisitLog + Priority Scoring + Walk List
-    </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-(function() {
-    // ---- STATE (VoterRecord + VisitLog) ----
-    let voters = [];
-    let visitLogs = [];
-    let selectedParty = 'all';
-    let selectedVoterId = null;
-    let nextId = 1;
-
-    // ---- DOM REFS ----
-    const voterSidebar = document.getElementById('voterSidebar');
-    const voterCount = document.getElementById('voterCount');
-    const voterCountDisplay = document.getElementById('voterCountDisplay');
-    const autoLoadStatus = document.getElementById('autoLoadStatus');
-    const form = document.getElementById('voterForm');
-    const nameInput = document.getElementById('voterName');
-    const idInput = document.getElementById('voterId');
-    const addressInput = document.getElementById('voterAddress');
-    const partyInput = document.getElementById('voterParty');
-    const statusSelect = document.getElementById('voterStatus');
-    const notesInput = document.getElementById('voterNotes');
-    const supportLevel = document.getElementById('supportLevel');
-    const revisitPriority = document.getElementById('revisitPriority');
-    const assignedTo = document.getElementById('assignedTo');
-    const logTable = document.getElementById('logTable');
-    const visitLogTable = document.getElementById('visitLogTable');
-    const logCount = document.getElementById('logCount');
-    const visitLogCount = document.getElementById('visitLogCount');
-    const statTotal = document.getElementById('statTotal');
-    const statSupporters = document.getElementById('statSupporters');
-    const statNotHome = document.getElementById('statNotHome');
-    const statKnocked = document.getElementById('statKnocked');
-    const statVisited = document.getElementById('statVisited');
-    const statPriority = document.getElementById('statPriority');
-    const conversionRate = document.getElementById('conversionRate');
-    const supportRate = document.getElementById('supportRate');
-    const avgSupport = document.getElementById('avgSupport');
-    const highPriorityCount = document.getElementById('highPriorityCount');
-    const nextSuggestion = document.getElementById('nextSuggestion');
-    const nextBadge = document.getElementById('nextBadge');
-    const suggestBtn = document.getElementById('suggestBtn');
-    const clearLogBtn = document.getElementById('clearLogBtn');
-    const clearDataBtn = document.getElementById('clearDataBtn');
-    const backupBtn = document.getElementById('backupBtn');
-    const toast = document.getElementById('toast');
-    const debugBox = document.getElementById('debugBox');
-    const debugContent = document.getElementById('debugContent');
-    const partyFilter = document.getElementById('partyFilter');
-    const filterCount = document.getElementById('filterCount');
-    const canvassBadge = document.getElementById('canvassBadge');
-    const generateWalkListBtn = document.getElementById('generateWalkList');
-    const walkList = document.getElementById('walkList');
-    const topPriorityList = document.getElementById('topPriorityList');
-    
-    // Dashboard refs
-    const dashTotal = document.getElementById('dashTotal');
-    const dashKnocked = document.getElementById('dashKnocked');
-    const dashSupporters = document.getElementById('dashSupporters');
-    const dashRevisit = document.getElementById('dashRevisit');
-    const dashReached = document.getElementById('dashReached');
-    const dashTotalVoters = document.getElementById('dashTotalVoters');
-    const dashSupportersCount = document.getElementById('dashSupportersCount');
-    const dashRevisitCount = document.getElementById('dashRevisitCount');
-    const dashConvRate = document.getElementById('dashConvRate');
-    const partyBreakdown = document.getElementById('partyBreakdown');
-    const priorityHigh = document.getElementById('priorityHigh');
-    const priorityMedium = document.getElementById('priorityMedium');
-    const priorityLow = document.getElementById('priorityLow');
-    
-    // Priority refs
-    const priorityCountHigh = document.getElementById('priorityCountHigh');
-    const priorityCountMedium = document.getElementById('priorityCountMedium');
-    const priorityCountLow = document.getElementById('priorityCountLow');
-    const avgPriorityScore = document.getElementById('avgPriorityScore');
-    
-    // Analytics refs
-    const analyticsDoors = document.getElementById('analyticsDoors');
-    const analyticsSupporters = document.getElementById('analyticsSupporters');
-    const analyticsConversion = document.getElementById('analyticsConversion');
-    const analyticsNotHome = document.getElementById('analyticsNotHome');
-    const analyticsTotal = document.getElementById('analyticsTotal');
-    const analyticsVisited = document.getElementById('analyticsVisited');
-    const analyticsVisitedPct = document.getElementById('analyticsVisitedPct');
-    const analyticsSupporterCount = document.getElementById('analyticsSupporterCount');
-    const analyticsUndecided = document.getElementById('analyticsUndecided');
-    const analyticsNotHomeCount = document.getElementById('analyticsNotHomeCount');
-    const analyticsRefused = document.getElementById('analyticsRefused');
-    
-    // Goals
-    const goalDoors = document.getElementById('goalDoors');
-    const goalDoorsBar = document.getElementById('goalDoorsBar');
-    const goalSupporters = document.getElementById('goalSupporters');
-    const goalSupportersBar = document.getElementById('goalSupportersBar');
-    const goalVisitRate = document.getElementById('goalVisitRate');
-    const goalVisitBar = document.getElementById('goalVisitBar');
-    const overallProgress = document.getElementById('overallProgress');
-
-    // ---- TOAST ----
-    function showToast(msg) {
-        toast.textContent = msg;
-        toast.classList.add('show');
-        clearTimeout(toast._timer);
-        toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
-    }
-    window.showToast = showToast;
-
-    // ---- PERSISTENCE ----
-    function saveData() {
-        try {
-            localStorage.setItem('crm_voters', JSON.stringify(voters));
-            localStorage.setItem('crm_visitlogs', JSON.stringify(visitLogs));
-            localStorage.setItem('crm_party', selectedParty);
-        } catch(e) {}
-    }
-
-    function loadData() {
-        try {
-            const v = localStorage.getItem('crm_voters');
-            const l = localStorage.getItem('crm_visitlogs');
-            const p = localStorage.getItem('crm_party');
-            if (v) voters = JSON.parse(v);
-            if (l) visitLogs = JSON.parse(l);
-            if (p) selectedParty = p;
-            if (voters.length > 0) {
-                nextId = Math.max(...voters.map(v => v.id || 0)) + 1;
-            }
-            return voters.length > 0;
-        } catch(e) { return false; }
-    }
-
-    // ---- UPDATE PARTY FILTER ----
-    function updatePartyFilter() {
-        const parties = [...new Set(voters.map(v => v.party).filter(p => p && p.trim() !== ''))].sort();
-        partyFilter.innerHTML = '<option value="all">All Parties</option>';
-        parties.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p;
-            opt.textContent = p;
-            partyFilter.appendChild(opt);
-        });
-        if (selectedParty && parties.includes(selectedParty)) partyFilter.value = selectedParty;
-    }
-
-    partyFilter.addEventListener('change', function() {
-        selectedParty = this.value;
-        saveData();
-        renderAll();
-    });
-
-    // ---- GET FILTERED ----
-    function getFiltered() {
-        let result = voters;
-        if (selectedParty !== 'all') result = result.filter(v => v.party === selectedParty);
-        return result;
-    }
-
-    // ---- CALCULATE PRIORITY SCORE ----
-    function calculatePriority(voter) {
-        let score = 0;
-        // Party match (if we had a target party, we'd add here)
-        // Support level
-        const support = voter.supportLevel || 0;
-        score += support;
-        // Revisit priority
-        const revisit = voter.revisitPriority || 0;
-        score += revisit;
-        // Penalty for not home
-        const notHomeCount = visitLogs.filter(l => l.voterId === voter.id && l.outcome === 'not_home').length;
-        score -= notHomeCount;
-        // Penalty for opposition
-        if (voter.status === 'opposition') score -= 3;
-        // Cap at 0-10
-        return Math.max(0, Math.min(10, score));
-    }
-
-    function getPriorityLabel(score) {
-        if (score >= 6) return { label: 'High', class: 'priority-high' };
-        if (score >= 3) return { label: 'Medium', class: 'priority-medium' };
-        return { label: 'Low', class: 'priority-low' };
-    }
-
-    // ---- RENDER SIDEBAR ----
-    function renderSidebar() {
-        const filtered = getFiltered();
-        voterCountDisplay.textContent = filtered.length;
-        if (filtered.length === 0) {
-            voterSidebar.innerHTML = `<div style="text-align:center;color:#8a9bb0;padding:0.5rem;font-size:0.65rem;">${voters.length > 0 ? 'No match' : 'Load voters from Data page'}</div>`;
-            return;
-        }
-
-        let html = '';
-        filtered.forEach((v, idx) => {
-            const priority = calculatePriority(v);
-            const pLabel = getPriorityLabel(priority);
-            const status = v.status || 'not_contacted';
-            const dotClass = 'dot-' + status;
-            const active = selectedVoterId === idx ? 'active' : '';
-            html += `<div class="voter-item ${active}" data-idx="${idx}">
-                <span class="num">${idx + 1}</span>
-                <span class="name">${v.name}</span>
-                <span class="dot ${dotClass}"></span>
-                <span class="priority-badge ${pLabel.class}" style="font-size:0.45rem;padding:0.05rem 0.3rem;">${pLabel.label}</span>
-            </div>`;
-        });
-        voterSidebar.innerHTML = html;
-
-        voterSidebar.querySelectorAll('.voter-item').forEach(el => {
-            el.addEventListener('click', function() {
-                const idx = parseInt(this.dataset.idx);
-                const filtered = getFiltered();
-                const voter = filtered[idx];
-                if (voter) {
-                    nameInput.value = voter.name || '';
-                    idInput.value = voter.national_id || '';
-                    addressInput.value = voter.address || '';
-                    partyInput.value = voter.party || '';
-                    statusSelect.value = voter.status || 'visited';
-                    notesInput.value = voter.notes || '';
-                    supportLevel.value = voter.supportLevel || 3;
-                    revisitPriority.value = voter.revisitPriority || 3;
-                    assignedTo.value = voter.assigned_to || 'Me';
-                    selectedVoterId = idx;
-                    renderSidebar();
-                    showToast(`📋 ${voter.name}`);
-                }
-            });
-        });
-    }
-
-    // ---- LOG VISIT ----
-    function logVisit(voterId, outcome, notes, supportLevelVal, revisitPriorityVal, canvasser) {
-        const visit = {
-            id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
-            voterId: voterId,
-            canvasser: canvasser || 'Me',
-            timestamp: new Date().toISOString(),
-            outcome: outcome,
-            notes: notes || '',
-            supportLevel: parseInt(supportLevelVal) || 0,
-            revisitPriority: parseInt(revisitPriorityVal) || 0
-        };
-        visitLogs.unshift(visit);
-        return visit;
-    }
-
-    // ---- ADD VOTER (from CSV or form) ----
-    function addVoter(voterData) {
-        const voter = {
-            id: nextId++,
-            name: voterData.name || '',
-            national_id: voterData.national_id || '',
-            constituency: voterData.constituency || '',
-            district: voterData.district || '',
-            house: voterData.house || '',
-            lives_in: voterData.lives_in || '',
-            address: voterData.address || voterData.house || voterData.lives_in || '',
-            phone: voterData.phone || '',
-            party: voterData.party || '',
-            status: voterData.status || 'not_contacted',
-            notes: voterData.notes || '',
-            last_contacted_at: null,
-            assigned_to: voterData.assigned_to || '',
-            revisit_priority: voterData.revisitPriority || 0,
-            supportLevel: voterData.supportLevel || 0,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        };
-        voters.push(voter);
-        return voter;
-    }
-
-    // ---- ADD DOOR KNOCK (form submit) ----
-    function addDoorKnock(name, nationalId, address, party, status, notes, support, revisit, canvasser) {
-        // Find or create voter
-        let voter = voters.find(v => v.name === name || v.national_id === nationalId);
-        if (!voter) {
-            voter = addVoter({
-                name: name,
-                national_id: nationalId,
-                address: address,
-                party: party,
-                status: status,
-                notes: notes,
-                supportLevel: parseInt(support),
-                revisitPriority: parseInt(revisit),
-                assigned_to: canvasser
-            });
-        } else {
-            // Update voter
-            voter.status = status;
-            voter.notes = notes || voter.notes;
-            voter.supportLevel = parseInt(support) || voter.supportLevel;
-            voter.revisitPriority = parseInt(revisit) || voter.revisitPriority;
-            voter.assigned_to = canvasser || voter.assigned_to;
-            voter.updated_at = new Date().toISOString();
-        }
+    <div class="container">
         
-        // Log the visit
-        const visit = logVisit(voter.id, status, notes, support, revisit, canvasser);
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <div>
+                <h1 id="appName">Voter Management</h1>
+                <span class="subtitle" id="appVersion">Version 1.0</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-success" onclick="exportCSV()">📥 Export CSV</button>
+                <button class="btn-primary" onclick="window.print()">🖨️ Print</button>
+                <button class="btn-warning" onclick="refreshData()">🔄 Refresh</button>
+                <button class="btn-danger" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
         
-        saveData();
-        renderAll();
-        return { voter, visit };
-    }
-
-    // ---- RENDER ----
-    function renderAll() {
-        const filtered = getFiltered();
-        const knocked = visitLogs.length;
-        const supporters = visitLogs.filter(l => l.outcome === 'supporter').length;
-        const notHome = visitLogs.filter(l => l.outcome === 'not_home').length;
-        const visited = visitLogs.filter(l => l.outcome === 'visited' || l.outcome === 'supporter' || l.outcome === 'undecided').length;
+        <!-- ===== STATS ===== -->
+        <div class="stats" id="statsContainer">
+            <div class="stat-card total">
+                <div class="number" id="totalVoters">0</div>
+                <div class="label">Total Voters</div>
+            </div>
+            <div class="stat-card mdp">
+                <div class="number" id="totalMDP">0</div>
+                <div class="label">MDP</div>
+            </div>
+            <div class="stat-card pnc">
+                <div class="number" id="totalPNC">0</div>
+                <div class="label">PNC</div>
+            </div>
+            <div class="stat-card jp">
+                <div class="number" id="totalJP">0</div>
+                <div class="label">JP</div>
+            </div>
+            <div class="stat-card male">
+                <div class="number" id="totalMale">0</div>
+                <div class="label">Male</div>
+            </div>
+            <div class="stat-card female">
+                <div class="number" id="totalFemale">0</div>
+                <div class="label">Female</div>
+            </div>
+        </div>
         
-        // Priority stats
-        let highP = 0, medP = 0, lowP = 0;
-        let totalPriority = 0;
-        voters.forEach(v => {
-            const p = calculatePriority(v);
-            totalPriority += p;
-            if (p >= 6) highP++;
-            else if (p >= 3) medP++;
-            else lowP++;
-        });
-        const avgP = voters.length > 0 ? (totalPriority / voters.length).toFixed(1) : 0;
-
-        statTotal.textContent = filtered.length;
-        statSupporters.textContent = supporters;
-        statNotHome.textContent = notHome;
-        statKnocked.textContent = knocked;
-        statVisited.textContent = visited;
-        statPriority.textContent = highP;
-        canvassBadge.textContent = knocked;
-
-        const convRate = knocked > 0 ? Math.round((supporters / knocked) * 100) : 0;
-        const supRate = knocked > 0 ? Math.round((supporters / knocked) * 100) : 0;
-        const avgSup = knocked > 0 ? (visitLogs.reduce((sum, l) => sum + (l.supportLevel || 0), 0) / knocked).toFixed(1) : 0;
-        
-        conversionRate.textContent = convRate + '%';
-        supportRate.textContent = supRate + '%';
-        avgSupport.textContent = avgSup;
-        highPriorityCount.textContent = highP;
-
-        renderSidebar();
-
-        // Activity Log Table
-        if (visitLogs.length === 0) {
-            logTable.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#8a9bb0;padding:0.6rem 0;">No activity yet</td></tr>`;
-            visitLogTable.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#8a9bb0;padding:0.8rem 0;">No visits logged yet</td></tr>`;
-        } else {
-            let html = '';
-            visitLogs.slice(0, 30).forEach(l => {
-                const voter = voters.find(v => v.id === l.voterId);
-                const label = l.outcome.replace('_', ' ').toUpperCase();
-                const cls = 'status-' + l.outcome;
-                html += `<tr>
-                    <td>${voter ? voter.name : 'Unknown'}</td>
-                    <td><span class="status-badge ${cls}">${label}</span></td>
-                    <td>${l.supportLevel || 0}/5</td>
-                    <td>${l.revisitPriority || 0}/5</td>
-                </tr>`;
-            });
-            logTable.innerHTML = html;
+        <!-- ===== FILTERS ===== -->
+        <div class="filter-section">
+            <input type="text" id="searchInput" placeholder="🔍 Search by NID, Name, House, Island..." onkeyup="applyFilters()" />
             
-            // Full visit log
-            let html2 = '';
-            visitLogs.slice(0, 100).forEach(l => {
-                const voter = voters.find(v => v.id === l.voterId);
-                const label = l.outcome.replace('_', ' ').toUpperCase();
-                const cls = 'status-' + l.outcome;
-                const time = l.timestamp ? new Date(l.timestamp).toLocaleString() : '';
-                html2 += `<tr>
-                    <td>${voter ? voter.name : 'Unknown'}</td>
-                    <td><span class="status-badge ${cls}">${label}</span></td>
-                    <td>${l.supportLevel || 0}/5</td>
-                    <td>${l.revisitPriority || 0}/5</td>
-                    <td>${l.canvasser || '—'}</td>
-                    <td style="font-size:0.55rem;color:#6b7a8f;">${time}</td>
-                </tr>`;
+            <select id="partyFilter" onchange="applyFilters()">
+                <option value="">All Parties</option>
+                <option value="MDP">MDP</option>
+                <option value="PNC">PNC</option>
+                <option value="JP">JP</option>
+            </select>
+            
+            <select id="sexFilter" onchange="applyFilters()">
+                <option value="">All Genders</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+            </select>
+            
+            <div class="row-selector">
+                <span>Rows:</span>
+                <select id="rowsPerPageSelect" onchange="changeRowsPerPage()">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100" selected>100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                </select>
+            </div>
+            
+            <button class="btn-primary" onclick="applyFilters()">🔍 Filter</button>
+            <button class="btn-outline" onclick="clearFilters()">✖️ Clear</button>
+        </div>
+        
+        <!-- ===== TABLE ===== -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>NID</th>
+                        <th>Name</th>
+                        <th>House</th>
+                        <th>Island</th>
+                        <th>Sex</th>
+                        <th>Age</th>
+                        <th>Party</th>
+                        <th>Mobile</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="9" class="loading">Loading voters...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- ===== PAGINATION ===== -->
+        <div class="pagination">
+            <span class="info" id="paginationInfo">Showing 0 of 0</span>
+            <div class="pages" id="paginationButtons"></div>
+        </div>
+        
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ======================================== -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ======================================== -->
+    <script>
+        // ========================================
+        // CONFIG
+        // ========================================
+        
+        const API_URL = CONFIG.API.BASE_URL;
+        const ANON_KEY = CONFIG.SUPABASE.ANON_KEY;
+        const TABLE = CONFIG.TABLES.MEMBERS;
+        
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        let rowsPerPage = 100;  // ← Default 100 rows per page
+        
+        // ========================================
+        // INIT
+        // ========================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('appName').textContent = CONFIG.APP.NAME || 'Voter Management';
+            document.getElementById('appVersion').textContent = 'Version: ' + (CONFIG.APP.VERSION || '1.0');
+            document.getElementById('rowsPerPageSelect').value = rowsPerPage;
+            loadVoters();
+        });
+        
+        // ========================================
+        // CHANGE ROWS PER PAGE
+        // ========================================
+        
+        function changeRowsPerPage() {
+            rowsPerPage = parseInt(document.getElementById('rowsPerPageSelect').value);
+            currentPage = 1;
+            renderTable();
+        }
+        
+        // ========================================
+        // LOAD DATA
+        // ========================================
+        
+        async function loadVoters() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading voters...</td></tr>';
+            
+            try {
+                const response = await fetch(`${API_URL}/rest/v1/${TABLE}?select=*`, {
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch data');
+                
+                const data = await response.json();
+                allData = data;
+                filteredData = [...data];
+                updateStats(data);
+                applyFilters();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                tbody.innerHTML = `<tr><td colspan="9" style="color:red;text-align:center;padding:20px;">❌ Error: ${error.message}</td></tr>`;
+                showToast('Error loading data: ' + error.message, 'error');
+            }
+        }
+        
+        // ========================================
+        // STATS
+        // ========================================
+        
+        function updateStats(data) {
+            document.getElementById('totalVoters').textContent = data.length;
+            document.getElementById('totalMDP').textContent = data.filter(r => (r.party || '').toUpperCase() === 'MDP').length;
+            document.getElementById('totalPNC').textContent = data.filter(r => (r.party || '').toUpperCase() === 'PNC').length;
+            document.getElementById('totalJP').textContent = data.filter(r => (r.party || '').toUpperCase() === 'JP').length;
+            document.getElementById('totalMale').textContent = data.filter(r => r.sex === 'M' || r.sex === 'Male').length;
+            document.getElementById('totalFemale').textContent = data.filter(r => r.sex === 'F' || r.sex === 'Female').length;
+        }
+        
+        // ========================================
+        // FILTERS
+        // ========================================
+        
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const party = document.getElementById('partyFilter').value;
+            const sex = document.getElementById('sexFilter').value;
+            
+            filteredData = allData.filter(row => {
+                // Search
+                if (search) {
+                    const match = (row.nid && row.nid.toLowerCase().includes(search)) ||
+                                  (row.name && row.name.toLowerCase().includes(search)) ||
+                                  (row.house_name && row.house_name.toLowerCase().includes(search)) ||
+                                  (row.island && row.island.toLowerCase().includes(search)) ||
+                                  (row.mobile && row.mobile.includes(search));
+                    if (!match) return false;
+                }
+                
+                // Party filter
+                if (party && (row.party || '').toUpperCase() !== party) return false;
+                
+                // Sex filter
+                if (sex && (row.sex || '') !== sex) return false;
+                
+                return true;
             });
-            visitLogTable.innerHTML = html2;
+            
+            currentPage = 1;
+            renderTable();
         }
-        logCount.textContent = visitLogs.length;
-        visitLogCount.textContent = visitLogs.length;
-
-        // Next suggestion
-        const notHomeList = visitLogs.filter(l => l.outcome === 'not_home');
-        const undecidedList = visitLogs.filter(l => l.outcome === 'undecided');
-        const notContacted = voters.filter(v => !visitLogs.some(l => l.voterId === v.id));
         
-        let nextDoor = null;
-        if (notHomeList.length > 0) {
-            const v = voters.find(v => v.id === notHomeList[0].voterId);
-            nextDoor = v;
-            nextSuggestion.textContent = `⏳ Revisit ${v ? v.address : 'unknown'} (not home)`;
-            nextBadge.textContent = notHomeList.length + ' not home';
-        } else if (undecidedList.length > 0) {
-            const v = voters.find(v => v.id === undecidedList[0].voterId);
-            nextDoor = v;
-            nextSuggestion.textContent = `🤔 Follow-up: ${v ? v.address : 'unknown'} (undecided)`;
-            nextBadge.textContent = undecidedList.length + ' undecided';
-        } else if (notContacted.length > 0) {
-            nextDoor = notContacted[0];
-            nextSuggestion.textContent = `🚪 Next door: ${nextDoor.address} (${nextDoor.name})`;
-            nextBadge.textContent = notContacted.length + ' remaining';
-        } else {
-            nextSuggestion.textContent = '🏠 All voters visited!';
-            nextBadge.textContent = '✅ done';
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('partyFilter').value = '';
+            document.getElementById('sexFilter').value = '';
+            applyFilters();
         }
-
-        voterCount.textContent = voters.length;
-        if (voters.length > 0) {
-            autoLoadStatus.innerHTML = `<span class="badge-auto"><i class="fas fa-check"></i> ${voters.length} loaded</span>`;
-        }
-
-        // ---- DASHBOARD ----
-        dashTotal.textContent = voters.length;
-        dashKnocked.textContent = knocked;
-        dashSupporters.textContent = supporters;
-        dashRevisit.textContent = notHomeList.length + undecidedList.length;
-        dashReached.textContent = visited;
-        dashTotalVoters.textContent = voters.length;
-        dashSupportersCount.textContent = supporters;
-        dashRevisitCount.textContent = notHomeList.length + undecidedList.length;
-        dashConvRate.textContent = convRate + '%';
-
-        // Party Breakdown
-        const partyMap = {};
-        voters.forEach(v => {
-            const p = v.party || 'Unknown';
-            partyMap[p] = (partyMap[p] || 0) + 1;
-        });
-        const total = voters.length;
-        let partyHtml = '';
-        Object.entries(partyMap).sort((a,b) => b[1] - a[1]).forEach(([p, count]) => {
-            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-            const supportersInParty = visitLogs.filter(l => {
-                const v = voters.find(v2 => v2.id === l.voterId);
-                return v && v.party === p && l.outcome === 'supporter';
-            }).length;
-            partyHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.2rem 0;border-bottom:1px solid #eef2f6;">
-                <span style="font-size:0.6rem;">${p}</span>
-                <div style="display:flex;align-items:center;gap:0.5rem;">
-                    <span style="font-size:0.55rem;color:#4caf50;">${supportersInParty} supporters</span>
-                    <span style="font-size:0.55rem;color:#6b7a8f;">${count} (${pct}%)</span>
-                    <div style="width:80px;height:4px;background:#eef2f6;border-radius:4px;">
-                        <div style="height:100%;background:#2a7de1;border-radius:4px;width:${pct}%;"></div>
-                    </div>
-                </div>
-            </div>`;
-        });
-        partyBreakdown.innerHTML = partyHtml || '<div style="text-align:center;color:#8a9bb0;padding:0.5rem;font-size:0.65rem;">No party data</div>';
-
-        priorityHigh.textContent = highP;
-        priorityMedium.textContent = medP;
-        priorityLow.textContent = lowP;
-
-        // ---- PRIORITY TAB ----
-        priorityCountHigh.textContent = highP;
-        priorityCountMedium.textContent = medP;
-        priorityCountLow.textContent = lowP;
-        avgPriorityScore.textContent = avgP;
-
-        // Top priority voters
-        const sortedByPriority = [...voters].sort((a,b) => calculatePriority(b) - calculatePriority(a)).slice(0, 10);
-        if (sortedByPriority.length > 0) {
-            let topHtml = '';
-            sortedByPriority.forEach((v, i) => {
-                const p = calculatePriority(v);
-                const label = getPriorityLabel(p);
-                topHtml += `<div style="display:flex;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid #eef2f6;">
-                    <span style="font-size:0.55rem;">${i+1}. ${v.name}</span>
-                    <span class="priority-badge ${label.class}" style="font-size:0.5rem;">${p}/10</span>
-                </div>`;
+        
+        // ========================================
+        // RENDER TABLE
+        // ========================================
+        
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (!filteredData || filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#666;padding:30px;">No voters found</td></tr>';
+                document.getElementById('paginationInfo').textContent = 'Showing 0 of 0';
+                document.getElementById('paginationButtons').innerHTML = '';
+                return;
+            }
+            
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = Math.min(start + rowsPerPage, filteredData.length);
+            const pageData = filteredData.slice(start, end);
+            
+            // Build table
+            let html = '';
+            pageData.forEach((row, index) => {
+                const party = row.party || '';
+                let partyClass = 'other';
+                let partyDisplay = party || '-';
+                if (party.toUpperCase() === 'MDP') partyClass = 'mdp';
+                else if (party.toUpperCase() === 'PNC') partyClass = 'pnc';
+                else if (party.toUpperCase() === 'JP') partyClass = 'jp';
+                
+                html += `
+                    <tr>
+                        <td>${start + index + 1}</td>
+                        <td>${row.nid || '-'}</td>
+                        <td><strong>${row.name || '-'}</strong></td>
+                        <td>${row.house_name || '-'}</td>
+                        <td>${row.island || '-'}</td>
+                        <td>${row.sex || '-'}</td>
+                        <td>${row.age || '-'}</td>
+                        <td><span class="party-badge ${partyClass}">${partyDisplay}</span></td>
+                        <td>${row.mobile || '-'}</td>
+                    </tr>
+                `;
             });
-            topPriorityList.innerHTML = topHtml;
-        } else {
-            topPriorityList.innerHTML = '<div style="text-align:center;padding:0.5rem;font-size:0.55rem;">No voters loaded</div>';
+            
+            tbody.innerHTML = html;
+            
+            // Pagination
+            document.getElementById('paginationInfo').textContent = `Showing ${start + 1}-${end} of ${filteredData.length} records (Page ${currentPage} of ${totalPages})`;
+            
+            let pagesHtml = '';
+            pagesHtml += `<button onclick="goToPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled style="opacity:0.5;"' : ''}>◀</button>`;
+            
+            const maxButtons = 7;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+            if (endPage - startPage < maxButtons - 1) startPage = Math.max(1, endPage - maxButtons + 1);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                pagesHtml += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+            
+            pagesHtml += `<button onclick="goToPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled style="opacity:0.5;"' : ''}>▶</button>`;
+            
+            document.getElementById('paginationButtons').innerHTML = pagesHtml;
         }
-
-        // ---- ANALYTICS ----
-        analyticsDoors.textContent = knocked;
-        analyticsSupporters.textContent = supporters;
-        analyticsConversion.textContent = convRate + '%';
-        const notHomeRate = knocked > 0 ? Math.round((notHome / knocked) * 100) : 0;
-        analyticsNotHome.textContent = notHomeRate + '%';
-        analyticsTotal.textContent = voters.length;
-        analyticsVisited.textContent = visited;
-        analyticsVisitedPct.textContent = voters.length > 0 ? Math.round((visited / voters.length) * 100) + '%' : '0%';
-        analyticsSupporterCount.textContent = supporters;
-        analyticsUndecided.textContent = visitLogs.filter(l => l.outcome === 'undecided').length;
-        analyticsNotHomeCount.textContent = notHome;
-        analyticsRefused.textContent = visitLogs.filter(l => l.outcome === 'refused').length;
-
-        // ---- GOALS ----
-        goalDoors.textContent = `${knocked} / 1,000`;
-        goalDoorsBar.style.width = Math.min((knocked / 1000) * 100, 100) + '%';
-        goalSupporters.textContent = `${supporters} / 500`;
-        goalSupportersBar.style.width = Math.min((supporters / 500) * 100, 100) + '%';
-        const visitPct = voters.length > 0 ? Math.round((visited / voters.length) * 100) : 0;
-        goalVisitRate.textContent = `${visitPct}% / 80%`;
-        goalVisitBar.style.width = Math.min((visitPct / 80) * 100, 100) + '%';
         
-        const progress = Math.round(((knocked/1000) + (supporters/500) + (visitPct/80)) / 3 * 100);
-        overallProgress.textContent = Math.min(progress, 100) + '%';
-    }
-
-    // ---- FORM SUBMIT ----
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = nameInput.value.trim();
-        const nationalId = idInput.value.trim();
-        const address = addressInput.value.trim();
-        const party = partyInput.value.trim();
-        const status = statusSelect.value;
-        const notes = notesInput.value.trim();
-        const support = supportLevel.value;
-        const revisit = revisitPriority.value;
-        const canvasser = assignedTo.value.trim() || 'Me';
-
-        if (!name) { showToast('❌ Name required'); return; }
-        if (!address) { showToast('❌ Address required'); return; }
-
-        addDoorKnock(name, nationalId, address, party, status, notes, support, revisit, canvasser);
-        form.reset();
-        nameInput.focus();
-        selectedVoterId = null;
-        showToast(`✅ Logged: ${name} → ${statusSelect.options[statusSelect.selectedIndex].text}`);
-    });
-
-    // ---- TABS ----
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            this.classList.add('active');
-            document.getElementById('tab-' + this.dataset.tab).classList.add('active');
-        });
-    });
-
-    // ---- SUGGEST ----
-    suggestBtn.addEventListener('click', function() {
-        renderAll();
-        showToast('🔄 Route updated');
-    });
-
-    // ---- CLEAR LOG ----
-    clearLogBtn.addEventListener('click', function() {
-        if (visitLogs.length === 0) return;
-        if (confirm('Clear all visit logs? (Voters will remain)')) {
-            visitLogs = [];
-            saveData();
-            renderAll();
-            showToast('🗑️ Log cleared');
-        }
-    });
-
-    // ---- CLEAR ALL ----
-    clearDataBtn.addEventListener('click', function() {
-        if (voters.length === 0 && visitLogs.length === 0) return;
-        if (confirm('⚠️ Delete ALL data (voters + logs)?')) {
-            voters = [];
-            visitLogs = [];
-            selectedParty = 'all';
-            nextId = 1;
-            localStorage.removeItem('crm_voters');
-            localStorage.removeItem('crm_visitlogs');
-            localStorage.removeItem('crm_party');
-            autoLoadStatus.innerHTML = '';
-            updatePartyFilter();
-            renderAll();
-            showToast('🗑️ All data cleared');
-        }
-    });
-
-    // ---- BACKUP ----
-    backupBtn.addEventListener('click', function() {
-        const data = { voters, visitLogs, selectedParty, exportDate: new Date().toISOString() };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `campaign-crm-${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-        showToast('📦 Backup downloaded');
-    });
-
-    // ---- GENERATE WALK LIST ----
-    generateWalkListBtn.addEventListener('click', function() {
-        if (voters.length === 0) { showToast('❌ No voters loaded'); return; }
+        // ========================================
+        // PAGINATION
+        // ========================================
         
-        // Sort by priority, then by address
-        const sorted = [...voters].sort((a, b) => {
-            const pA = calculatePriority(a);
-            const pB = calculatePriority(b);
-            if (pB !== pA) return pB - pA;
-            return (a.address || '').localeCompare(b.address || '');
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+        }
+        
+        // ========================================
+        // REFRESH
+        // ========================================
+        
+        function refreshData() {
+            showToast('Refreshing data...', 'info');
+            loadVoters();
+        }
+        
+        // ========================================
+        // EXPORT CSV
+        // ========================================
+        
+        function exportCSV() {
+            if (filteredData.length === 0) {
+                showToast('No data to export', 'error');
+                return;
+            }
+            
+            const headers = ['NID', 'Name', 'House Name', 'Island', 'Sex', 'Age', 'Constituency', 'Box', 'Mobile', 'Party'];
+            const rows = filteredData.map(r => [
+                r.nid || '',
+                r.name || '',
+                r.house_name || '',
+                r.island || '',
+                r.sex || '',
+                r.age || '',
+                r.constit || '',
+                r.registered_box || '',
+                r.mobile || '',
+                r.party || ''
+            ]);
+            
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `voters_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast(`Exported ${filteredData.length} voters`, 'success');
+        }
+        
+        // ========================================
+        // LOGOUT
+        // ========================================
+        
+        function logout() {
+            localStorage.removeItem('admin_logged_in');
+            showToast('Logged out successfully', 'info');
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        }
+        
+        // ========================================
+        // TOAST
+        // ========================================
+        
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // ========================================
+        // KEYBOARD SHORTCUTS
+        // ========================================
+        
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+F to focus search
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            // Escape to clear filters
+            if (e.key === 'Escape') {
+                clearFilters();
+            }
         });
         
-        let html = '<div style="font-size:0.55rem;font-weight:600;color:#0b2b4a;margin-bottom:0.3rem;">📋 Today\'s Route (by priority)</div>';
-        sorted.slice(0, 20).forEach((v, i) => {
-            const p = calculatePriority(v);
-            const label = getPriorityLabel(p);
-            const status = v.status || 'not_contacted';
-            const statusLabel = status.replace('_', ' ');
-            html += `<div style="display:flex;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid #eef2f6;">
-                <span style="font-size:0.5rem;">${i+1}. ${v.name} - ${v.address || 'No address'}</span>
-                <span>
-                    <span style="font-size:0.45rem;color:#6b7a8f;">${statusLabel}</span>
-                    <span class="priority-badge ${label.class}" style="font-size:0.45rem;margin-left:0.3rem;">${p}/10</span>
-                </span>
-            </div>`;
-        });
-        if (sorted.length > 20) {
-            html += `<div style="font-size:0.5rem;color:#6b7a8f;text-align:center;padding:0.3rem;">+ ${sorted.length - 20} more voters</div>`;
-        }
-        walkList.innerHTML = html;
-        showToast('📍 Walk list generated!');
-    });
+        // ========================================
+        // GLOBAL EXPORTS
+        // ========================================
+        
+        window.applyFilters = applyFilters;
+        window.clearFilters = clearFilters;
+        window.goToPage = goToPage;
+        window.refreshData = refreshData;
+        window.exportCSV = exportCSV;
+        window.logout = logout;
+        window.showToast = showToast;
+        window.changeRowsPerPage = changeRowsPerPage;
+    </script>
 
-    // ---- INIT ----
-    const hasData = loadData();
-    if (voters.length > 0) {
-        autoLoadStatus.innerHTML = `<span class="badge-auto"><i class="fas fa-check"></i> ${voters.length} loaded</span>`;
-        updatePartyFilter();
-        renderAll();
-        showToast(`📂 Loaded ${voters.length} voters from storage`);
-    } else {
-        debugBox.classList.add('show');
-        debugContent.textContent = '📋 Go to Data Manager (top right) to upload your CSV.\n\n' +
-            '📌 Campaign CRM Features:\n' +
-            '• VoterRecord with full fields\n' +
-            '• VisitLog for audit trail\n' +
-            '• Priority Scoring Engine\n' +
-            '• Walk List Generator\n' +
-            '• Live Dashboard\n\n' +
-            '📊 Your CSV maps to:\n' +
-            'Photo → photo\n' +
-            'Name → name\n' +
-            'National ID → national_id\n' +
-            'Const → constituency\n' +
-            'District → district\n' +
-            'House → house\n' +
-            'Lives in → lives_in\n' +
-            'Phone → phone\n' +
-            'Party → party';
-        renderAll();
-    }
-
-    window.addEventListener('beforeunload', saveData);
-    console.log('🚀 Campaign CRM loaded!');
-    console.log(`📊 ${voters.length} voters, ${visitLogs.length} logs`);
-})();
-</script>
 </body>
 </html>

@@ -1,11 +1,648 @@
-# Python 3
-python3 -m http.server 8000
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScreenShare Demo - Educational</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: #161b22;
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid #30363d;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h1 span {
+            background: linear-gradient(135deg, #58a6ff, #1f6feb);
+            font-size: 12px;
+            padding: 2px 12px;
+            border-radius: 20px;
+            color: #fff;
+            font-weight: 500;
+        }
+        .subtitle {
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: #238636;
+            color: #fff;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #2ea043;
+        }
+        .btn-danger {
+            background: #da3633;
+            color: #fff;
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: #f85149;
+        }
+        .btn-secondary {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: #30363d;
+        }
+        .status {
+            margin-left: auto;
+            font-size: 13px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status .dot.idle {
+            background: #8b949e;
+        }
+        .status .dot.active {
+            background: #3fb950;
+            animation: pulse 1.5s infinite;
+        }
+        .status .dot.error {
+            background: #f85149;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+        #preview {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #0d1117;
+            border-radius: 12px;
+            border: 2px solid #30363d;
+            object-fit: contain;
+        }
+        #preview.active {
+            border-color: #3fb950;
+        }
+        .info-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .info-item {
+            background: #0d1117;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #21262d;
+        }
+        .info-item .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8b949e;
+        }
+        .info-item .value {
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 2px;
+            font-family: 'Courier New', monospace;
+            color: #e6edf3;
+        }
+        .info-item .value .highlight {
+            color: #58a6ff;
+        }
+        .log {
+            margin-top: 16px;
+            background: #0d1117;
+            border-radius: 8px;
+            border: 1px solid #21262d;
+            padding: 12px 16px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+        .log .entry {
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid #161b22;
+            padding: 2px 0;
+        }
+        .log .entry .time {
+            color: #484f58;
+            min-width: 80px;
+        }
+        .log .entry .msg {
+            color: #8b949e;
+        }
+        .log .entry .msg.success {
+            color: #3fb950;
+        }
+        .log .entry .msg.error {
+            color: #f85149;
+        }
+        .log .entry .msg.warning {
+            color: #d29922;
+        }
+        .log .entry .msg.info {
+            color: #58a6ff;
+        }
+        .log::-webkit-scrollbar {
+            width: 5px;
+        }
+        .log::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        .log::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        .footer-note {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: #0d1117;
+            border-radius: 8px;
+            border-left: 4px solid #d29922;
+            font-size: 13px;
+            color: #8b949e;
+        }
+        .footer-note strong {
+            color: #e6edf3;
+        }
+        .footer-note code {
+            background: #161b22;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #58a6ff;
+            font-size: 12px;
+        }
+        .footer-note .badge {
+            display: inline-block;
+            background: #da3633;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
 
-# Node.js (http-server)
-npx http-server -p 8000
+    <div class="container">
+        <h1>
+            🖥️ ScreenShare Demo
+            <span>Educational</span>
+        </h1>
+        <div class="subtitle">A legal, permission-based screen sharing implementation for learning purposes</div>
 
-# PHP
-php -S localhost:8000
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn">▶ Start Sharing</button>
+            <button class="btn btn-danger" id="stopBtn" disabled>⏹ Stop</button>
+            <button class="btn btn-secondary" id="snapshotBtn" disabled>📷 Snapshot</button>
+            <div class="status" id="status">
+                <span class="dot idle" id="statusDot"></span>
+                <span id="statusText">Idle</span>
+            </div>
+        </div>
 
-# VS Code Live Server
-# Right-click index.html → Open with Live Server
+        <video id="preview" autoplay muted playsinline></video>
+
+        <div class="info-bar">
+            <div class="info-item">
+                <div class="label">📹 Source</div>
+                <div class="value" id="sourceInfo">—</div>
+            </div>
+            <div class="info-item">
+                <div class="label">📐 Resolution</div>
+                <div class="value" id="resolutionInfo">—</div>
+            </div>
+            <div class="info-item">
+                <div class="label">⚡ Frame Rate</div>
+                <div class="value" id="fpsInfo">—</div>
+            </div>
+            <div class="info-item">
+                <div class="label">🔐 Permission</div>
+                <div class="value" id="permissionInfo">—</div>
+            </div>
+        </div>
+
+        <div class="log" id="logContainer">
+            <div class="entry">
+                <span class="time">[INIT]</span>
+                <span class="msg info">Engine initialized. Click "Start Sharing" to begin.</span>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <span class="badge">🔒 SECURE</span>
+            <strong>This demo respects your privacy.</strong> Screen capture only works with your explicit permission.
+            The browser's <code>getDisplayMedia()</code> API <strong>cannot</strong> be bypassed by JavaScript.
+            <span style="display:block; margin-top: 6px; color:#484f58;">
+                ⚡ Host this on any web server or run locally. No backend required.
+            </span>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // COMPLETE EDUCATIONAL SCREEN SHARING DEMO
+        // ================================================================
+        // This demonstrates the ENTIRE flow of browser screen capture.
+        // All code respects browser security - NO bypasses, NO silent capture.
+        // ================================================================
+
+        // ─── State ────────────────────────────────────────────────────────
+
+        const state = {
+            stream: null,
+            isActive: false,
+            frameCount: 0,
+            lastFpsUpdate: 0,
+            fps: 0,
+            track: null,
+            settings: null,
+            snapshotCanvas: null,
+        };
+
+        // ─── DOM Refs ─────────────────────────────────────────────────────
+
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const snapshotBtn = document.getElementById('snapshotBtn');
+        const preview = document.getElementById('preview');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const logContainer = document.getElementById('logContainer');
+        const sourceInfo = document.getElementById('sourceInfo');
+        const resolutionInfo = document.getElementById('resolutionInfo');
+        const fpsInfo = document.getElementById('fpsInfo');
+        const permissionInfo = document.getElementById('permissionInfo');
+
+        // ─── Logging ──────────────────────────────────────────────────────
+
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = 'entry';
+            const time = new Date().toISOString().split('T')[1].slice(0, 8);
+            entry.innerHTML = `
+                <span class="time">[${time}]</span>
+                <span class="msg ${type}">${message}</span>
+            `;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // ─── Status ───────────────────────────────────────────────────────
+
+        function setStatus(text, stateType = 'idle') {
+            statusText.textContent = text;
+            statusDot.className = `dot ${stateType}`;
+        }
+
+        // ─── Info Update ──────────────────────────────────────────────────
+
+        function updateInfo() {
+            if (!state.isActive || !state.stream) {
+                sourceInfo.textContent = '—';
+                resolutionInfo.textContent = '—';
+                fpsInfo.textContent = '—';
+                permissionInfo.textContent = '—';
+                return;
+            }
+            const track = state.stream.getVideoTracks()[0];
+            if (!track) return;
+            const s = track.getSettings();
+            sourceInfo.textContent = track.label || 'Screen';
+            resolutionInfo.textContent = s.width && s.height ? `${s.width} × ${s.height}` : '—';
+            permissionInfo.textContent = '✅ Granted';
+        }
+
+        // ─── Main Capture ─────────────────────────────────────────────────
+
+        async function startCapture() {
+            log('🔍 Requesting screen capture...', 'info');
+            setStatus('Requesting...', 'active');
+            startBtn.disabled = true;
+            stopBtn.disabled = true;
+            snapshotBtn.disabled = true;
+
+            try {
+                // ──────────────────────────────────────────────────────────
+                // STEP 1: User gesture is automatically checked by the browser
+                //         If you didn't click the button, this throws an error.
+                // ──────────────────────────────────────────────────────────
+
+                log('   📞 Calling getDisplayMedia()...', 'trace');
+                log('   ⏳ Browser is showing the OS permission dialog...', 'warning');
+                log('   🖥️ Please select a screen/window in the dialog', 'info');
+
+                // ──────────────────────────────────────────────────────────
+                // STEP 2: Browser PAUSES JavaScript and shows OS dialog.
+                //         User MUST click "Share" or "Cancel" in the OS dialog.
+                //         JavaScript CANNOT interact with this dialog.
+                // ──────────────────────────────────────────────────────────
+
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 30 },
+                    },
+                    audio: false,
+                });
+
+                // ──────────────────────────────────────────────────────────
+                // STEP 3: User approved! JavaScript resumes.
+                // ──────────────────────────────────────────────────────────
+
+                log('   ✅ User approved screen sharing!', 'success');
+                state.stream = stream;
+                state.isActive = true;
+
+                const videoTrack = stream.getVideoTracks()[0];
+                if (!videoTrack) throw new Error('No video track');
+                state.track = videoTrack;
+                state.settings = videoTrack.getSettings();
+
+                log(`   📹 Track: ${videoTrack.label}`, 'trace');
+                log(`   📹 Settings: ${JSON.stringify(videoTrack.getSettings())}`, 'trace');
+
+                // ──────────────────────────────────────────────────────────
+                // STEP 4: Display the stream in the <video> element
+                // ──────────────────────────────────────────────────────────
+
+                preview.srcObject = stream;
+                await preview.play();
+                preview.classList.add('active');
+
+                log('   ▶️ Stream is now playing', 'success');
+
+                // ──────────────────────────────────────────────────────────
+                // STEP 5: Handle "ended" event (user clicked OS Stop button)
+                // ──────────────────────────────────────────────────────────
+
+                videoTrack.onended = () => {
+                    log('   ⏹ User stopped via OS button', 'warning');
+                    stopCapture();
+                };
+
+                // ──────────────────────────────────────────────────────────
+                // STEP 6: FPS counter using requestAnimationFrame
+                // ──────────────────────────────────────────────────────────
+
+                state.frameCount = 0;
+                state.lastFpsUpdate = performance.now();
+
+                function countFrames() {
+                    if (!state.isActive || !state.stream) return;
+                    state.frameCount++;
+                    const now = performance.now();
+                    if (now - state.lastFpsUpdate >= 1000) {
+                        state.fps = state.frameCount;
+                        state.frameCount = 0;
+                        state.lastFpsUpdate = now;
+                        fpsInfo.textContent = `${state.fps} fps`;
+                        const s = state.track?.getSettings();
+                        if (s?.width && s?.height) {
+                            resolutionInfo.textContent = `${s.width} × ${s.height}`;
+                        }
+                    }
+                    requestAnimationFrame(countFrames);
+                }
+                requestAnimationFrame(countFrames);
+
+                // ──────────────────────────────────────────────────────────
+                // STEP 7: Update UI
+                // ──────────────────────────────────────────────────────────
+
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                snapshotBtn.disabled = false;
+                setStatus('🔴 LIVE', 'active');
+                updateInfo();
+
+                log('✅ Screen capture is LIVE!', 'success');
+                log('   💡 Click "Snapshot" to save a still image', 'info');
+                log('   💡 Use the OS "Stop Sharing" button to stop', 'info');
+
+            } catch (error) {
+                // ──────────────────────────────────────────────────────────
+                // STEP 8: Error handling
+                // ──────────────────────────────────────────────────────────
+                // Common errors:
+                //   NotAllowedError - User denied or cancelled
+                //   AbortError - User closed the dialog
+                //   SecurityError - No user gesture (didn't click)
+                //   NotFoundError - No sources available
+                // ──────────────────────────────────────────────────────────
+
+                console.error('Capture error:', error);
+
+                let msg = error.message;
+                let type = 'error';
+
+                switch (error.name) {
+                    case 'NotAllowedError':
+                        msg = '❌ User denied permission or cancelled';
+                        setStatus('Denied', 'error');
+                        break;
+                    case 'AbortError':
+                        msg = '❌ User cancelled the dialog';
+                        setStatus('Cancelled', 'error');
+                        break;
+                    case 'SecurityError':
+                        msg = '❌ Security: Must be triggered by a click in a secure context';
+                        setStatus('Security Error', 'error');
+                        break;
+                    case 'NotFoundError':
+                        msg = '❌ No screen sources available';
+                        setStatus('No sources', 'error');
+                        break;
+                    default:
+                        msg = `❌ ${error.name}: ${error.message}`;
+                        setStatus('Error', 'error');
+                }
+
+                log(msg, type);
+
+                if (state.stream) {
+                    state.stream.getTracks().forEach(t => t.stop());
+                    state.stream = null;
+                }
+                state.isActive = false;
+                preview.srcObject = null;
+                preview.classList.remove('active');
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                snapshotBtn.disabled = true;
+                updateInfo();
+            }
+        }
+
+        // ─── Stop ─────────────────────────────────────────────────────────
+
+        function stopCapture() {
+            log('⏹ Stopping capture...', 'info');
+
+            if (state.stream) {
+                state.stream.getTracks().forEach(track => {
+                    track.stop();
+                    log(`   Stopped: ${track.kind} - ${track.label}`, 'trace');
+                });
+                state.stream = null;
+            }
+
+            preview.srcObject = null;
+            preview.classList.remove('active');
+            state.isActive = false;
+            state.track = null;
+            state.fps = 0;
+            state.frameCount = 0;
+
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            snapshotBtn.disabled = true;
+            setStatus('Idle', 'idle');
+            updateInfo();
+            fpsInfo.textContent = '—';
+            resolutionInfo.textContent = '—';
+            permissionInfo.textContent = '—';
+
+            log('🛑 Capture stopped', 'success');
+        }
+
+        // ─── Snapshot ─────────────────────────────────────────────────────
+
+        function takeSnapshot() {
+            if (!state.isActive || !state.stream) {
+                log('⚠️ No active stream', 'warning');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = preview.videoWidth || 1280;
+            canvas.height = preview.videoHeight || 720;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(preview, 0, 0, canvas.width, canvas.height);
+
+            const link = document.createElement('a');
+            link.download = `snapshot-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            log(`📷 Snapshot saved (${canvas.width}×${canvas.height})`, 'success');
+        }
+
+        // ─── Event Listeners ─────────────────────────────────────────────
+
+        startBtn.addEventListener('click', startCapture);
+        stopBtn.addEventListener('click', stopCapture);
+        snapshotBtn.addEventListener('click', takeSnapshot);
+
+        // ─── Keyboard Shortcuts ──────────────────────────────────────────
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !startBtn.disabled) startBtn.click();
+            if (e.key === 'Escape' && !stopBtn.disabled) stopBtn.click();
+            if (e.key === 's' && !snapshotBtn.disabled) snapshotBtn.click();
+        });
+
+        // ─── Cleanup ──────────────────────────────────────────────────────
+
+        window.addEventListener('beforeunload', () => {
+            if (state.stream) state.stream.getTracks().forEach(t => t.stop());
+        });
+
+        // ─── Initial Log ──────────────────────────────────────────────────
+
+        log('🚀 ScreenShare Demo ready', 'info');
+        log('📖 Click "Start Sharing" - the browser will ask for permission', 'info');
+        log('🔒 This is 100% legal - the user must approve every share', 'info');
+
+        console.log('%c┌──────────────────────────────────────────────────────┐', 'color:#58a6ff');
+        console.log('%c│              SCREENSHARE DEMO v2.0                │', 'color:#58a6ff');
+        console.log('%c├──────────────────────────────────────────────────────┤', 'color:#58a6ff');
+        console.log('%c│                                                      │', 'color:#58a6ff');
+        console.log('%c│  ✅ 100% Legal - User must approve every share      │', 'color:#3fb950');
+        console.log('%c│  🔒 Browser enforces all security checks            │', 'color:#58a6ff');
+        console.log('%c│  📖 Educational - Shows the complete flow           │', 'color:#58a6ff');
+        console.log('%c│                                                      │', 'color:#58a6ff');
+        console.log('%c│  HOW IT WORKS:                                      │', 'color:#d29922');
+        console.log('%c│  1. User clicks "Start Sharing" (user gesture)     │', 'color:#8b949e');
+        console.log('%c│  2. Browser shows OS permission dialog              │', 'color:#8b949e');
+        console.log('%c│  3. User selects a screen/window                   │', 'color:#8b949e');
+        console.log('%c│  4. User clicks "Share" in the OS dialog           │', 'color:#8b949e');
+        console.log('%c│  5. Browser returns the stream to JavaScript       │', 'color:#8b949e');
+        console.log('%c│  6. JavaScript displays it in the <video> element  │', 'color:#8b949e');
+        console.log('%c│                                                      │', 'color:#58a6ff');
+        console.log('%c│  ⛔ CANNOT BE BYPASSED:                            │', 'color:#f85149');
+        console.log('%c│  • No user gesture = SecurityError                 │', 'color:#f85149');
+        console.log('%c│  • User clicks "Cancel" = NotAllowedError          │', 'color:#f85149');
+        console.log('%c│  • JavaScript cannot click "Share" for the user    │', 'color:#f85149');
+        console.log('%c└──────────────────────────────────────────────────────┘', 'color:#58a6ff');
+    </script>
+</body>
+</html>

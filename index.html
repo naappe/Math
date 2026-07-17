@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ScreenShare Demo - Educational</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ScreenShare - Mobile</title>
     <style>
         * {
             margin: 0;
@@ -18,56 +18,58 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
+            touch-action: manipulation;
         }
         .container {
-            max-width: 1000px;
+            max-width: 500px;
             width: 100%;
             background: #161b22;
             border-radius: 16px;
-            padding: 30px;
+            padding: 20px;
             border: 1px solid #30363d;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
         h1 {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
-            margin-bottom: 4px;
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 4px;
         }
-        h1 span {
-            background: linear-gradient(135deg, #58a6ff, #1f6feb);
-            font-size: 12px;
+        h1 .badge {
+            font-size: 10px;
+            background: #238636;
+            color: #fff;
             padding: 2px 12px;
             border-radius: 20px;
-            color: #fff;
             font-weight: 500;
+        }
+        h1 .badge.ios {
+            background: #da3633;
         }
         .subtitle {
             color: #8b949e;
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-size: 13px;
+            margin-bottom: 16px;
         }
         .controls {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 16px;
-            align-items: center;
+            margin-bottom: 14px;
         }
         .btn {
-            padding: 10px 24px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            touch-action: manipulation;
+            flex: 1;
+            min-width: 100px;
         }
         .btn:disabled {
             opacity: 0.4;
@@ -77,41 +79,41 @@
             background: #238636;
             color: #fff;
         }
-        .btn-primary:hover:not(:disabled) {
-            background: #2ea043;
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.96);
         }
         .btn-danger {
             background: #da3633;
             color: #fff;
         }
-        .btn-danger:hover:not(:disabled) {
-            background: #f85149;
+        .btn-danger:active:not(:disabled) {
+            transform: scale(0.96);
         }
         .btn-secondary {
             background: #21262d;
             color: #c9d1d9;
             border: 1px solid #30363d;
         }
-        .btn-secondary:hover:not(:disabled) {
-            background: #30363d;
-        }
         .status {
-            margin-left: auto;
-            font-size: 13px;
-            padding: 6px 16px;
-            border-radius: 20px;
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #8b949e;
             display: flex;
             align-items: center;
             gap: 8px;
+            padding: 8px 14px;
+            background: #21262d;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #8b949e;
+            border: 1px solid #30363d;
+            width: 100%;
+            justify-content: center;
+            margin-top: 4px;
         }
         .status .dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
             display: inline-block;
+            flex-shrink: 0;
         }
         .status .dot.idle {
             background: #8b949e;
@@ -123,13 +125,18 @@
         .status .dot.error {
             background: #f85149;
         }
+        .status .dot.unsupported {
+            background: #d29922;
+        }
         @keyframes pulse {
             0%,
             100% {
                 opacity: 1;
+                transform: scale(1);
             }
             50% {
                 opacity: 0.3;
+                transform: scale(0.8);
             }
         }
         #preview {
@@ -139,59 +146,66 @@
             border-radius: 12px;
             border: 2px solid #30363d;
             object-fit: contain;
+            display: none;
         }
         #preview.active {
+            display: block;
             border-color: #3fb950;
         }
-        .info-bar {
+        #preview.preview-visible {
+            display: block;
+        }
+        .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-top: 16px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
         }
         .info-item {
             background: #0d1117;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: 8px;
             border: 1px solid #21262d;
         }
         .info-item .label {
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: #8b949e;
         }
         .info-item .value {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             margin-top: 2px;
             font-family: 'Courier New', monospace;
             color: #e6edf3;
+            word-break: break-all;
         }
         .info-item .value .highlight {
             color: #58a6ff;
         }
         .log {
-            margin-top: 16px;
+            margin-top: 14px;
             background: #0d1117;
             border-radius: 8px;
             border: 1px solid #21262d;
-            padding: 12px 16px;
-            max-height: 150px;
+            padding: 10px 14px;
+            max-height: 120px;
             overflow-y: auto;
             font-family: 'Courier New', monospace;
-            font-size: 12px;
+            font-size: 11px;
             line-height: 1.8;
         }
         .log .entry {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             border-bottom: 1px solid #161b22;
             padding: 2px 0;
         }
         .log .entry .time {
             color: #484f58;
-            min-width: 80px;
+            min-width: 70px;
+            flex-shrink: 0;
         }
         .log .entry .msg {
             color: #8b949e;
@@ -209,7 +223,7 @@
             color: #58a6ff;
         }
         .log::-webkit-scrollbar {
-            width: 5px;
+            width: 4px;
         }
         .log::-webkit-scrollbar-track {
             background: #0d1117;
@@ -218,8 +232,8 @@
             background: #30363d;
             border-radius: 4px;
         }
-        .footer-note {
-            margin-top: 16px;
+        .device-info {
+            margin-top: 14px;
             padding: 12px 16px;
             background: #0d1117;
             border-radius: 8px;
@@ -227,25 +241,71 @@
             font-size: 13px;
             color: #8b949e;
         }
-        .footer-note strong {
+        .device-info strong {
             color: #e6edf3;
         }
-        .footer-note code {
+        .device-info code {
             background: #161b22;
             padding: 2px 8px;
             border-radius: 4px;
             color: #58a6ff;
             font-size: 12px;
         }
-        .footer-note .badge {
+        .device-info .unsupported-badge {
             display: inline-block;
             background: #da3633;
             color: #fff;
-            padding: 2px 10px;
+            padding: 2px 12px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: 600;
             margin-right: 6px;
+        }
+        .device-info .supported-badge {
+            display: inline-block;
+            background: #238636;
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .footer-note {
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: #0d1117;
+            border-radius: 8px;
+            border-left: 4px solid #58a6ff;
+            font-size: 12px;
+            color: #8b949e;
+            line-height: 1.6;
+        }
+        .footer-note strong {
+            color: #e6edf3;
+        }
+        @media (max-width: 400px) {
+            .container {
+                padding: 14px;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 10px 14px;
+                min-width: 70px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .info-item {
+                padding: 8px 10px;
+            }
+            .info-item .value {
+                font-size: 11px;
+            }
+            h1 {
+                font-size: 17px;
+            }
         }
     </style>
 </head>
@@ -253,38 +313,38 @@
 
     <div class="container">
         <h1>
-            🖥️ ScreenShare Demo
-            <span>Educational</span>
+            📱 ScreenShare
+            <span class="badge" id="platformBadge">Mobile</span>
         </h1>
-        <div class="subtitle">A legal, permission-based screen sharing implementation for learning purposes</div>
+        <div class="subtitle">Mobile screen sharing demo for Android · iOS shows unsupported</div>
 
         <div class="controls">
-            <button class="btn btn-primary" id="startBtn">▶ Start Sharing</button>
+            <button class="btn btn-primary" id="startBtn">▶ Start</button>
             <button class="btn btn-danger" id="stopBtn" disabled>⏹ Stop</button>
-            <button class="btn btn-secondary" id="snapshotBtn" disabled>📷 Snapshot</button>
-            <div class="status" id="status">
-                <span class="dot idle" id="statusDot"></span>
-                <span id="statusText">Idle</span>
-            </div>
+        </div>
+
+        <div class="status" id="status">
+            <span class="dot idle" id="statusDot"></span>
+            <span id="statusText">Ready</span>
         </div>
 
         <video id="preview" autoplay muted playsinline></video>
 
-        <div class="info-bar">
+        <div class="info-grid">
             <div class="info-item">
-                <div class="label">📹 Source</div>
-                <div class="value" id="sourceInfo">—</div>
+                <div class="label">📱 Device</div>
+                <div class="value" id="deviceInfo">—</div>
             </div>
             <div class="info-item">
                 <div class="label">📐 Resolution</div>
                 <div class="value" id="resolutionInfo">—</div>
             </div>
             <div class="info-item">
-                <div class="label">⚡ Frame Rate</div>
+                <div class="label">⚡ FPS</div>
                 <div class="value" id="fpsInfo">—</div>
             </div>
             <div class="info-item">
-                <div class="label">🔐 Permission</div>
+                <div class="label">🔐 Status</div>
                 <div class="value" id="permissionInfo">—</div>
             </div>
         </div>
@@ -292,26 +352,30 @@
         <div class="log" id="logContainer">
             <div class="entry">
                 <span class="time">[INIT]</span>
-                <span class="msg info">Engine initialized. Click "Start Sharing" to begin.</span>
+                <span class="msg info">Detecting device...</span>
             </div>
         </div>
 
+        <div class="device-info" id="deviceInfoBox">
+            <span id="deviceBadge">⏳ Detecting...</span>
+            <span id="deviceMessage">Checking browser support...</span>
+        </div>
+
         <div class="footer-note">
-            <span class="badge">🔒 SECURE</span>
-            <strong>This demo respects your privacy.</strong> Screen capture only works with your explicit permission.
-            The browser's <code>getDisplayMedia()</code> API <strong>cannot</strong> be bypassed by JavaScript.
-            <span style="display:block; margin-top: 6px; color:#484f58;">
-                ⚡ Host this on any web server or run locally. No backend required.
+            <strong>🔒 Privacy-first:</strong> Screen sharing only works with your explicit permission.
+            The browser <strong>always</strong> shows a system dialog.
+            <span style="display:block; margin-top:4px; color:#484f58; font-size:11px;">
+                ⚡ Works on Android Chrome · ❌ Not supported on iOS Safari (Apple restriction)
             </span>
         </div>
     </div>
 
     <script>
         // ================================================================
-        // COMPLETE EDUCATIONAL SCREEN SHARING DEMO
+        // MOBILE SCREEN SHARING DEMO
         // ================================================================
-        // This demonstrates the ENTIRE flow of browser screen capture.
-        // All code respects browser security - NO bypasses, NO silent capture.
+        // Supports: Android Chrome, Android Firefox, Samsung Internet
+        // Unsupported: iOS Safari, iOS Chrome (uses Safari engine)
         // ================================================================
 
         // ─── State ────────────────────────────────────────────────────────
@@ -323,23 +387,98 @@
             lastFpsUpdate: 0,
             fps: 0,
             track: null,
-            settings: null,
-            snapshotCanvas: null,
+            isIOS: false,
+            isAndroid: false,
+            isSupported: false,
         };
 
         // ─── DOM Refs ─────────────────────────────────────────────────────
 
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const snapshotBtn = document.getElementById('snapshotBtn');
         const preview = document.getElementById('preview');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
         const logContainer = document.getElementById('logContainer');
-        const sourceInfo = document.getElementById('sourceInfo');
+        const deviceInfo = document.getElementById('deviceInfo');
         const resolutionInfo = document.getElementById('resolutionInfo');
         const fpsInfo = document.getElementById('fpsInfo');
         const permissionInfo = document.getElementById('permissionInfo');
+        const deviceInfoBox = document.getElementById('deviceInfoBox');
+        const deviceBadge = document.getElementById('deviceBadge');
+        const deviceMessage = document.getElementById('deviceMessage');
+        const platformBadge = document.getElementById('platformBadge');
+
+        // ─── Device Detection ────────────────────────────────────────────
+
+        function detectDevice() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+            // iOS detection
+            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+                state.isIOS = true;
+                state.isAndroid = false;
+                state.isSupported = false;
+                platformBadge.textContent = 'iOS';
+                platformBadge.className = 'badge ios';
+                deviceBadge.innerHTML = '🍎 iOS';
+                deviceMessage.textContent = '❌ Screen sharing is not supported on iOS Safari';
+                deviceInfoBox.style.borderLeftColor = '#da3633';
+                return 'ios';
+            }
+
+            // Android detection
+            if (/Android/.test(ua)) {
+                state.isIOS = false;
+                state.isAndroid = true;
+                state.isSupported = true;
+                platformBadge.textContent = 'Android';
+                platformBadge.className = 'badge';
+                deviceBadge.innerHTML = '🤖 Android';
+                deviceMessage.textContent = '✅ Screen sharing is supported on Android Chrome/Firefox';
+                deviceInfoBox.style.borderLeftColor = '#238636';
+                return 'android';
+            }
+
+            // Desktop or other
+            state.isIOS = false;
+            state.isAndroid = false;
+            state.isSupported = true;
+            platformBadge.textContent = 'Desktop';
+            platformBadge.className = 'badge';
+            deviceBadge.innerHTML = '💻 Desktop';
+            deviceMessage.textContent = '✅ Screen sharing is fully supported';
+            deviceInfoBox.style.borderLeftColor = '#238636';
+            return 'desktop';
+        }
+
+        // ─── Check API Support ───────────────────────────────────────────
+
+        function checkSupport() {
+            const hasGetDisplayMedia = !!navigator.mediaDevices?.getDisplayMedia;
+
+            if (state.isIOS) {
+                return {
+                    supported: false,
+                    reason: 'iOS Safari does not support getDisplayMedia()',
+                    apiExists: hasGetDisplayMedia,
+                };
+            }
+
+            if (!hasGetDisplayMedia) {
+                return {
+                    supported: false,
+                    reason: 'getDisplayMedia() not available in this browser',
+                    apiExists: false,
+                };
+            }
+
+            return {
+                supported: true,
+                reason: 'Screen sharing is available',
+                apiExists: true,
+            };
+        }
 
         // ─── Logging ──────────────────────────────────────────────────────
 
@@ -366,7 +505,6 @@
 
         function updateInfo() {
             if (!state.isActive || !state.stream) {
-                sourceInfo.textContent = '—';
                 resolutionInfo.textContent = '—';
                 fpsInfo.textContent = '—';
                 permissionInfo.textContent = '—';
@@ -375,38 +513,47 @@
             const track = state.stream.getVideoTracks()[0];
             if (!track) return;
             const s = track.getSettings();
-            sourceInfo.textContent = track.label || 'Screen';
-            resolutionInfo.textContent = s.width && s.height ? `${s.width} × ${s.height}` : '—';
+            resolutionInfo.textContent = s.width && s.height ? `${s.width}×${s.height}` : '—';
             permissionInfo.textContent = '✅ Granted';
+            deviceInfo.textContent = state.isAndroid ? 'Android' : state.isIOS ? 'iOS' : 'Desktop';
         }
 
         // ─── Main Capture ─────────────────────────────────────────────────
 
         async function startCapture() {
+            // ──────────────────────────────────────────────────────────────
+            // STEP 0: Check if the device supports screen sharing
+            // ──────────────────────────────────────────────────────────────
+
+            const support = checkSupport();
+
+            if (!support.supported) {
+                log(`❌ ${support.reason}`, 'error');
+                setStatus('Unsupported', 'unsupported');
+                deviceMessage.textContent = `❌ ${support.reason}`;
+                deviceInfoBox.style.borderLeftColor = '#da3633';
+                return;
+            }
+
             log('🔍 Requesting screen capture...', 'info');
             setStatus('Requesting...', 'active');
             startBtn.disabled = true;
             stopBtn.disabled = true;
-            snapshotBtn.disabled = true;
 
             try {
                 // ──────────────────────────────────────────────────────────
-                // STEP 1: User gesture is automatically checked by the browser
-                //         If you didn't click the button, this throws an error.
+                // STEP 1: User gesture is checked by the browser
+                // STEP 2: Browser shows the OS permission dialog
+                // STEP 3: On Android, user selects "Share" or "Cancel"
                 // ──────────────────────────────────────────────────────────
 
                 log('   📞 Calling getDisplayMedia()...', 'trace');
-                log('   ⏳ Browser is showing the OS permission dialog...', 'warning');
-                log('   🖥️ Please select a screen/window in the dialog', 'info');
-
-                // ──────────────────────────────────────────────────────────
-                // STEP 2: Browser PAUSES JavaScript and shows OS dialog.
-                //         User MUST click "Share" or "Cancel" in the OS dialog.
-                //         JavaScript CANNOT interact with this dialog.
-                // ──────────────────────────────────────────────────────────
+                log('   ⏳ Android system dialog is showing...', 'warning');
+                log('   📱 Select "Share" to begin', 'info');
 
                 const stream = await navigator.mediaDevices.getDisplayMedia({
                     video: {
+                        // Android typically uses the device's native resolution
                         width: { ideal: 1920 },
                         height: { ideal: 1080 },
                         frameRate: { ideal: 30 },
@@ -415,7 +562,7 @@
                 });
 
                 // ──────────────────────────────────────────────────────────
-                // STEP 3: User approved! JavaScript resumes.
+                // STEP 4: User approved! Stream is active.
                 // ──────────────────────────────────────────────────────────
 
                 log('   ✅ User approved screen sharing!', 'success');
@@ -425,32 +572,33 @@
                 const videoTrack = stream.getVideoTracks()[0];
                 if (!videoTrack) throw new Error('No video track');
                 state.track = videoTrack;
-                state.settings = videoTrack.getSettings();
 
-                log(`   📹 Track: ${videoTrack.label}`, 'trace');
-                log(`   📹 Settings: ${JSON.stringify(videoTrack.getSettings())}`, 'trace');
+                const settings = videoTrack.getSettings();
+                log(`   📹 Track: ${videoTrack.label || 'Screen'}`, 'trace');
+                log(`   📹 Settings: ${JSON.stringify(settings)}`, 'trace');
 
                 // ──────────────────────────────────────────────────────────
-                // STEP 4: Display the stream in the <video> element
+                // STEP 5: Display the stream
                 // ──────────────────────────────────────────────────────────
 
                 preview.srcObject = stream;
                 await preview.play();
                 preview.classList.add('active');
+                preview.classList.add('preview-visible');
 
-                log('   ▶️ Stream is now playing', 'success');
+                log('   ▶️ Stream is playing', 'success');
 
                 // ──────────────────────────────────────────────────────────
-                // STEP 5: Handle "ended" event (user clicked OS Stop button)
+                // STEP 6: Handle "ended" event
                 // ──────────────────────────────────────────────────────────
 
                 videoTrack.onended = () => {
-                    log('   ⏹ User stopped via OS button', 'warning');
+                    log('   ⏹ User stopped via system button', 'warning');
                     stopCapture();
                 };
 
                 // ──────────────────────────────────────────────────────────
-                // STEP 6: FPS counter using requestAnimationFrame
+                // STEP 7: FPS counter
                 // ──────────────────────────────────────────────────────────
 
                 state.frameCount = 0;
@@ -467,7 +615,7 @@
                         fpsInfo.textContent = `${state.fps} fps`;
                         const s = state.track?.getSettings();
                         if (s?.width && s?.height) {
-                            resolutionInfo.textContent = `${s.width} × ${s.height}`;
+                            resolutionInfo.textContent = `${s.width}×${s.height}`;
                         }
                     }
                     requestAnimationFrame(countFrames);
@@ -475,28 +623,27 @@
                 requestAnimationFrame(countFrames);
 
                 // ──────────────────────────────────────────────────────────
-                // STEP 7: Update UI
+                // STEP 8: Update UI
                 // ──────────────────────────────────────────────────────────
 
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
-                snapshotBtn.disabled = false;
                 setStatus('🔴 LIVE', 'active');
                 updateInfo();
 
                 log('✅ Screen capture is LIVE!', 'success');
-                log('   💡 Click "Snapshot" to save a still image', 'info');
-                log('   💡 Use the OS "Stop Sharing" button to stop', 'info');
+                log('   📱 Your screen is being shared', 'info');
+                log('   ⏹ Tap "Stop" or use system button to end', 'info');
 
             } catch (error) {
                 // ──────────────────────────────────────────────────────────
-                // STEP 8: Error handling
+                // STEP 9: Error handling
                 // ──────────────────────────────────────────────────────────
-                // Common errors:
-                //   NotAllowedError - User denied or cancelled
-                //   AbortError - User closed the dialog
-                //   SecurityError - No user gesture (didn't click)
-                //   NotFoundError - No sources available
+                // Common mobile errors:
+                //   NotAllowedError: User denied or cancelled
+                //   AbortError: User closed the dialog
+                //   SecurityError: No user gesture (didn't tap)
+                //   NotFoundError: No sources available
                 // ──────────────────────────────────────────────────────────
 
                 console.error('Capture error:', error);
@@ -506,7 +653,7 @@
 
                 switch (error.name) {
                     case 'NotAllowedError':
-                        msg = '❌ User denied permission or cancelled';
+                        msg = '❌ User denied or cancelled the share';
                         setStatus('Denied', 'error');
                         break;
                     case 'AbortError':
@@ -514,7 +661,7 @@
                         setStatus('Cancelled', 'error');
                         break;
                     case 'SecurityError':
-                        msg = '❌ Security: Must be triggered by a click in a secure context';
+                        msg = '❌ Security: Must be triggered by a tap in a secure context';
                         setStatus('Security Error', 'error');
                         break;
                     case 'NotFoundError':
@@ -535,14 +682,17 @@
                 state.isActive = false;
                 preview.srcObject = null;
                 preview.classList.remove('active');
+                preview.classList.remove('preview-visible');
                 startBtn.disabled = false;
                 stopBtn.disabled = true;
-                snapshotBtn.disabled = true;
                 updateInfo();
+                resolutionInfo.textContent = '—';
+                fpsInfo.textContent = '—';
+                permissionInfo.textContent = '—';
             }
         }
 
-        // ─── Stop ─────────────────────────────────────────────────────────
+        // ─── Stop Capture ─────────────────────────────────────────────────
 
         function stopCapture() {
             log('⏹ Stopping capture...', 'info');
@@ -550,13 +700,14 @@
             if (state.stream) {
                 state.stream.getTracks().forEach(track => {
                     track.stop();
-                    log(`   Stopped: ${track.kind} - ${track.label}`, 'trace');
+                    log(`   Stopped: ${track.kind}`, 'trace');
                 });
                 state.stream = null;
             }
 
             preview.srcObject = null;
             preview.classList.remove('active');
+            preview.classList.remove('preview-visible');
             state.isActive = false;
             state.track = null;
             state.fps = 0;
@@ -564,85 +715,77 @@
 
             startBtn.disabled = false;
             stopBtn.disabled = true;
-            snapshotBtn.disabled = true;
             setStatus('Idle', 'idle');
             updateInfo();
-            fpsInfo.textContent = '—';
             resolutionInfo.textContent = '—';
+            fpsInfo.textContent = '—';
             permissionInfo.textContent = '—';
 
             log('🛑 Capture stopped', 'success');
         }
 
-        // ─── Snapshot ─────────────────────────────────────────────────────
-
-        function takeSnapshot() {
-            if (!state.isActive || !state.stream) {
-                log('⚠️ No active stream', 'warning');
-                return;
-            }
-
-            const canvas = document.createElement('canvas');
-            canvas.width = preview.videoWidth || 1280;
-            canvas.height = preview.videoHeight || 720;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(preview, 0, 0, canvas.width, canvas.height);
-
-            const link = document.createElement('a');
-            link.download = `snapshot-${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-
-            log(`📷 Snapshot saved (${canvas.width}×${canvas.height})`, 'success');
-        }
-
         // ─── Event Listeners ─────────────────────────────────────────────
 
         startBtn.addEventListener('click', startCapture);
+        startBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            startCapture();
+        });
+
         stopBtn.addEventListener('click', stopCapture);
-        snapshotBtn.addEventListener('click', takeSnapshot);
-
-        // ─── Keyboard Shortcuts ──────────────────────────────────────────
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !startBtn.disabled) startBtn.click();
-            if (e.key === 'Escape' && !stopBtn.disabled) stopBtn.click();
-            if (e.key === 's' && !snapshotBtn.disabled) snapshotBtn.click();
+        stopBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            stopCapture();
         });
 
-        // ─── Cleanup ──────────────────────────────────────────────────────
+        // ─── Initialization ──────────────────────────────────────────────
 
-        window.addEventListener('beforeunload', () => {
-            if (state.stream) state.stream.getTracks().forEach(t => t.stop());
-        });
+        function init() {
+            const device = detectDevice();
+            const support = checkSupport();
 
-        // ─── Initial Log ──────────────────────────────────────────────────
+            deviceInfo.textContent = device === 'ios' ? '📱 iOS' : device === 'android' ? '📱 Android' : '💻 Desktop';
 
-        log('🚀 ScreenShare Demo ready', 'info');
-        log('📖 Click "Start Sharing" - the browser will ask for permission', 'info');
-        log('🔒 This is 100% legal - the user must approve every share', 'info');
+            if (!support.supported) {
+                log(`❌ ${support.reason}`, 'error');
+                setStatus('Unsupported', 'unsupported');
+                startBtn.disabled = true;
+                deviceMessage.textContent = `❌ ${support.reason}`;
+                deviceInfoBox.style.borderLeftColor = '#da3633';
+            } else {
+                log('✅ Screen sharing is supported on this device', 'success');
+                setStatus('Ready', 'idle');
+                startBtn.disabled = false;
+                deviceMessage.textContent = '✅ Tap "Start" to share your screen';
+                deviceInfoBox.style.borderLeftColor = '#238636';
+            }
 
-        console.log('%c┌──────────────────────────────────────────────────────┐', 'color:#58a6ff');
-        console.log('%c│              SCREENSHARE DEMO v2.0                │', 'color:#58a6ff');
-        console.log('%c├──────────────────────────────────────────────────────┤', 'color:#58a6ff');
-        console.log('%c│                                                      │', 'color:#58a6ff');
-        console.log('%c│  ✅ 100% Legal - User must approve every share      │', 'color:#3fb950');
-        console.log('%c│  🔒 Browser enforces all security checks            │', 'color:#58a6ff');
-        console.log('%c│  📖 Educational - Shows the complete flow           │', 'color:#58a6ff');
-        console.log('%c│                                                      │', 'color:#58a6ff');
-        console.log('%c│  HOW IT WORKS:                                      │', 'color:#d29922');
-        console.log('%c│  1. User clicks "Start Sharing" (user gesture)     │', 'color:#8b949e');
-        console.log('%c│  2. Browser shows OS permission dialog              │', 'color:#8b949e');
-        console.log('%c│  3. User selects a screen/window                   │', 'color:#8b949e');
-        console.log('%c│  4. User clicks "Share" in the OS dialog           │', 'color:#8b949e');
-        console.log('%c│  5. Browser returns the stream to JavaScript       │', 'color:#8b949e');
-        console.log('%c│  6. JavaScript displays it in the <video> element  │', 'color:#8b949e');
-        console.log('%c│                                                      │', 'color:#58a6ff');
-        console.log('%c│  ⛔ CANNOT BE BYPASSED:                            │', 'color:#f85149');
-        console.log('%c│  • No user gesture = SecurityError                 │', 'color:#f85149');
-        console.log('%c│  • User clicks "Cancel" = NotAllowedError          │', 'color:#f85149');
-        console.log('%c│  • JavaScript cannot click "Share" for the user    │', 'color:#f85149');
-        console.log('%c└──────────────────────────────────────────────────────┘', 'color:#58a6ff');
+            log(`📱 Device: ${device}`, 'info');
+            log(`🔐 getDisplayMedia: ${support.apiExists ? '✅ Yes' : '❌ No'}`, 'info');
+
+            console.log('%c┌──────────────────────────────────────────────────────┐', 'color:#58a6ff');
+            console.log('%c│            MOBILE SCREEN SHARE DEMO               │', 'color:#58a6ff');
+            console.log('%c├──────────────────────────────────────────────────────┤', 'color:#58a6ff');
+            console.log('%c│                                                      │', 'color:#58a6ff');
+            console.log(`%c│  📱 Device: ${device.padEnd(35)}│`, 'color:#8b949e');
+            console.log(`%c│  🔐 Support: ${support.supported ? '✅ Supported' : '❌ Unsupported'.padEnd(35)}│`, 'color:#8b949e');
+            console.log('%c│                                                      │', 'color:#58a6ff');
+            console.log('%c│  HOW IT WORKS ON MOBILE:                           │', 'color:#d29922');
+            console.log('%c│  1. Tap "Start" (user gesture)                     │', 'color:#8b949e');
+            console.log('%c│  2. Browser shows system dialog                    │', 'color:#8b949e');
+            console.log('%c│  3. Tap "Share" in the dialog                     │', 'color:#8b949e');
+            console.log('%c│  4. Stream starts (shares ENTIRE screen)          │', 'color:#8b949e');
+            console.log('%c│  5. Tap "Stop" or use system button to end        │', 'color:#8b949e');
+            console.log('%c│                                                      │', 'color:#58a6ff');
+            console.log('%c│  ⚠️  iOS Safari does NOT support this API         │', 'color:#f85149');
+            console.log('%c│  ✅ Android Chrome/Firefox fully support it        │', 'color:#3fb950');
+            console.log('%c└──────────────────────────────────────────────────────┘', 'color:#58a6ff');
+        }
+
+        // ─── Run ──────────────────────────────────────────────────────────
+
+        init();
     </script>
+
 </body>
 </html>

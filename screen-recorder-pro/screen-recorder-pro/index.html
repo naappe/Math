@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Screen Recorder Pro</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎬 Screen Recorder</h1>
+            <span class="badge" id="statusBadge">
+                <span class="dot" id="badgeDot"></span>
+                <span id="badgeText">Ready</span>
+            </span>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-wrapper" id="previewWrapper">
+            <video id="preview" autoplay muted playsinline></video>
+            <div class="placeholder" id="placeholder">
+                <div class="icon">🖥️</div>
+                <div>Ready to record</div>
+                <div style="font-size:11px;color:#333;">Tap "Start Recording" below</div>
+            </div>
+            <div class="timer-overlay" id="timerOverlay">
+                <span class="live-dot"></span>
+                <span id="timerDisplay">00:00:00</span>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn">
+                <span class="icon">⏺️</span> Start
+            </button>
+            <button class="btn btn-danger" id="stopBtn" disabled>
+                <span class="icon">⏹️</span> Stop
+            </button>
+            <button class="btn btn-gold" id="downloadBtn" disabled>
+                <span class="icon">⬇️</span> Save
+            </button>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar" id="statusBar">
+            <span class="item">
+                <span class="label">📹</span>
+                <span class="value" id="resolutionInfo">—</span>
+            </span>
+            <span class="item">
+                <span class="label">⚡</span>
+                <span class="value" id="fpsInfo">—</span>
+            </span>
+            <span class="item">
+                <span class="label">📦</span>
+                <span class="value" id="sizeInfo">—</span>
+            </span>
+            <span class="item">
+                <span class="label">⏱️</span>
+                <span class="value" id="recordTime">00:00</span>
+            </span>
+            <span class="spacer"></span>
+            <span class="item">
+                <span class="label">🔒</span>
+                <span class="value" id="permissionStatus">Idle</span>
+            </span>
+        </div>
+
+        <!-- Inactivity Warning -->
+        <div style="margin-bottom: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 12px; color: #555;">
+            <span>🛡️ Auto-stop after <strong id="inactivityTimeDisplay">60</strong>s of inactivity</span>
+            <span class="inactivity-badge">CLOSES THE LOOPHOLE</span>
+        </div>
+
+        <!-- Log -->
+        <div class="log" id="logContainer">
+            <div class="entry">
+                <span class="time">[INIT]</span>
+                <span class="msg info">Screen Recorder Pro initialized</span>
+            </div>
+            <div class="entry">
+                <span class="time">[INIT]</span>
+                <span class="msg info">Auto-stop enabled: 60s inactivity</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <strong>🔒 Privacy-first:</strong> Records only with your permission.
+            <strong>Auto-stop</strong> protects you if you forget to stop.
+            <span style="display:block; margin-top:4px; color:#444; font-size:11px;">
+                ⚡ Desktop + Android · iOS unsupported (Apple restriction)
+            </span>
+        </div>
+    </div>
+    <script src="assets/js/app.js" defer></script>
+
+</body>
+</html>

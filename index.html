@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>📱 Screen Recorder</title>
-        <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=2.1" />
 </head>
 <body>
 
@@ -36,17 +36,14 @@
                 <span id="timerDisplay">00:00:00</span>
             </div>
 
-            <!-- iOS Unsupported Overlay -->
             <div class="unsupported-overlay" id="unsupportedOverlay">
                 <div class="big-icon">🍎</div>
                 <h2>Not Supported on iOS</h2>
-                <p>Apple restricts screen sharing in Safari. This feature works on <strong>Android</strong> and <strong>Desktop</strong>.</p>
+                <p>Apple restricts browser screen sharing. This feature works only where the browser provides screen capture.</p>
                 <div class="alt-text">
                     <strong>💡 Alternative:</strong><br />
                     iOS users can use the built-in <code>Screen Recording</code> feature in Control Center.<br /><br />
-                    <span style="font-size:11px;color:#444;">
-                        Settings → Control Center → Add Screen Recording
-                    </span>
+                    <span style="font-size:11px;color:#444;">Settings → Control Center → Add Screen Recording</span>
                 </div>
             </div>
         </div>
@@ -98,12 +95,11 @@
         <div class="footer">
             <strong>🔒 Privacy-first:</strong> Records only with your explicit permission.
             <span style="display:block; margin-top:3px; color:#444; font-size:10px;">
-                ✅ Android Chrome/Firefox · ✅ Desktop · ❌ iOS Safari (Apple restriction)
+                Browser support depends on the device and browser screen-capture API.
             </span>
         </div>
     </div>
 
-        <script src="app.js"></script>
-
+    <script src="app.js?v=2.1"></script>
 </body>
 </html>

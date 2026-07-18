@@ -17,11 +17,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.IBinder
+import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -31,6 +33,8 @@ class RecordingService : Service() {
     private var virtualDisplay: VirtualDisplay? = null
     private var recorder: MediaRecorder? = null
     private var outputUri: Uri? = null
+    private var outputDescriptor: ParcelFileDescriptor? = null
+    private var legacyOutputStream: FileOutputStream? = null
     private var recording = false
 
     private val projectionCallback = object : MediaProjection.Callback() {
@@ -56,21 +60,24 @@ class RecordingService : Service() {
         if (recording) return
 
         val resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, 0)
-        val resultData = if (Build.VERSION.SDK_INT >= 33) {
+        val resultData: Intent? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(EXTRA_RESULT_DATA, Intent::class.java)
         } else {
-            @Suppress("DEPRECATION") intent.getParcelableExtra(EXTRA_RESULT_DATA)
-        } ?: return stopSelf()
-        val withMic = intent.getBooleanExtra(EXTRA_WITH_MIC, false)
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(EXTRA_RESULT_DATA)
+        }
+        if (resultData == null) {
+            stopSelf()
+            return
+        }
 
+        val withMic = intent.getBooleanExtra(EXTRA_WITH_MIC, false)
         val notification = createNotification("Recording screen")
-        if (Build.VERSION.SDK_INT >= 29) {
-            startForeground(
-                NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or
-                    if (withMic) ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE else 0
-            )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            var foregroundType = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+            if (withMic) foregroundType = foregroundType or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+            startForeground(NOTIFICATION_ID, notification, foregroundType)
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
@@ -82,8 +89,7 @@ class RecordingService : Service() {
             val width = makeEven(metrics.widthPixels)
             val height = makeEven(metrics.heightPixels)
 
-            recorder = if (Build.VERSION.SDK_INT >= 31) MediaRecorder(this) else @Suppress("DEPRECATION") MediaRecorder()
-            recorder?.apply {
+            recorder = createMediaRecorder().apply {
                 if (withMic) setAudioSource(MediaRecorder.AudioSource.MIC)
                 setVideoSource(MediaRecorder.VideoSource.SURFACE)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -96,7 +102,7 @@ class RecordingService : Service() {
                     setAudioEncodingBitRate(128_000)
                     setAudioSamplingRate(44_100)
                 }
-                setOutputFile(createOutputFile())
+                setOutputFile(createOutputDescriptor())
                 prepare()
             }
 
@@ -118,14 +124,23 @@ class RecordingService : Service() {
 
             recorder?.start()
             recording = true
-        } catch (error: Exception) {
+        } catch (_: Exception) {
             cleanup(false)
         }
     }
 
-    private fun createOutputFile(): java.io.FileDescriptor {
+    private fun createMediaRecorder(): MediaRecorder {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(this)
+        } else {
+            @Suppress("DEPRECATION")
+            MediaRecorder()
+        }
+    }
+
+    private fun createOutputDescriptor(): java.io.FileDescriptor {
         val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        return if (Build.VERSION.SDK_INT >= 29) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val values = ContentValues().apply {
                 put(MediaStore.Video.Media.DISPLAY_NAME, "screen_$stamp.mp4")
                 put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
@@ -134,12 +149,14 @@ class RecordingService : Service() {
             }
             outputUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
                 ?: error("Unable to create recording")
-            contentResolver.openFileDescriptor(outputUri!!, "w")?.fileDescriptor
+            outputDescriptor = contentResolver.openFileDescriptor(outputUri!!, "w")
                 ?: error("Unable to open recording")
+            outputDescriptor!!.fileDescriptor
         } else {
             val dir = File(getExternalFilesDir(Environment.DIRECTORY_MOVIES), "MathRecorder").apply { mkdirs() }
             val file = File(dir, "screen_$stamp.mp4")
-            java.io.FileOutputStream(file).fd
+            legacyOutputStream = FileOutputStream(file)
+            legacyOutputStream!!.fd
         }
     }
 
@@ -166,13 +183,18 @@ class RecordingService : Service() {
         projection?.unregisterCallback(projectionCallback)
         projection?.stop()
         projection = null
+        outputDescriptor?.close()
+        outputDescriptor = null
+        legacyOutputStream?.close()
+        legacyOutputStream = null
 
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             outputUri?.let { uri ->
                 if (success) {
-                    contentResolver.update(uri, ContentValues().apply {
+                    val values = ContentValues().apply {
                         put(MediaStore.Video.Media.IS_PENDING, 0)
-                    }, null, null)
+                    }
+                    contentResolver.update(uri, values, null, null)
                 } else {
                     contentResolver.delete(uri, null, null)
                 }
@@ -186,7 +208,10 @@ class RecordingService : Service() {
     private fun createNotification(text: String): Notification {
         val stopIntent = Intent(this, RecordingService::class.java).apply { action = ACTION_STOP }
         val stopPendingIntent = PendingIntent.getService(
-            this, 1, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            this,
+            1,
+            stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.presence_video_online)
@@ -198,8 +223,12 @@ class RecordingService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            val channel = NotificationChannel(CHANNEL_ID, "Screen recording", NotificationManager.IMPORTANCE_LOW)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Screen recording",
+                NotificationManager.IMPORTANCE_LOW
+            )
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
     }
